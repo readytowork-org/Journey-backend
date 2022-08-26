@@ -9,6 +9,7 @@ import (
 	"boilerplate-api/models"
 	"boilerplate-api/utils"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -54,6 +55,52 @@ func (cc UserController) CreateUser(c *gin.Context) {
 	}
 
 	responses.SuccessJSON(c, http.StatusOK, "User Created Sucessfully")
+}
+
+// UpdateUser -> Update User
+func (cc UserController) UpdateUser(c *gin.Context) {
+	user := models.User{}
+	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
+
+	if err := c.ShouldBindJSON(&user); err != nil {
+		cc.logger.Zap.Error("Error [UpdateUser] (ShouldBindJson) : ", err)
+		err := errors.BadRequest.Wrap(err, "Failed to bind user data")
+		responses.HandleError(c, err)
+		return
+	}
+
+	if err := cc.userService.WithTrx(trx).UpdateUser(user); err != nil {
+		cc.logger.Zap.Error("Error [UpdateUser] [db UpdateUser]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Update user")
+		responses.HandleError(c, err)
+		return
+	}
+
+	responses.SuccessJSON(c, http.StatusOK, "User Updated Sucessfully")
+}
+
+// DeleteUser -> Delete User
+func (cc UserController) DeleteUser(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeleteUser] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse user ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	err = cc.userService.DeleteUser(int64(id))
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeleteUser] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse user ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	responses.SuccessJSON(c, http.StatusOK, "User Deleted Sucessfully")
+
 }
 
 // GetAllUser -> Get All User
