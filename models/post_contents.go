@@ -1,7 +1,11 @@
 package models
 
-type PostContent struct {
-	ContentId int64  `json:"content_id"`
-	ConentUrl string `json:"conent_url"`
-	PostId    int64  `json:"post_id"`
+type PostContents struct {
+	ContentId  int64  `json:"content_id"`
+	ContentUrl string `json:"content_url"`
+	PostId     int64  `json:"post_id"`
+}
+
+func (m PostContents) TableName() string {
+	return "post_contents"
 }
