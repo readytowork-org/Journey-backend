@@ -5,6 +5,9 @@ CREATE TABLE IF NOT EXISTS `comments` (
   `likes` INT NULL DEFAULT 0,
   `parent_id_fk` INT UNSIGNED NULL,
   `user_id` INT UNSIGNED NOT NULL,
+  `created_at` DATETIME NOT NULL,
+  `deleted_at` DATETIME NULL,
+  `updated_at` DATETIME NULL,
   PRIMARY KEY (`comment_id`),
   UNIQUE INDEX `comment_id_UNIQUE` (`comment_id` ASC) VISIBLE,
   INDEX `comment_id_fk_idx` (`parent_id_fk` ASC) VISIBLE,
@@ -25,4 +28,9 @@ CREATE TABLE IF NOT EXISTS `comments` (
     REFERENCES `mydb`.`users` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+ENGINE = InnoDB  DEFAULT CHARSET = utf8mb4;
+
+
+
+
+

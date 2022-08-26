@@ -3,8 +3,11 @@ CREATE TABLE IF NOT EXISTS `posts` (
   `title` VARCHAR(128) NOT NULL,
   `caption` TEXT NULL,
   `user_id` INT UNSIGNED NOT NULL,
-  `likes` INT NOT NULL,
+  `likes` INT NOT NULL, 
   `audience` ENUM('private', 'public', 'followers') NOT NULL DEFAULT 'public',
+  `created_at` DATETIME NULL,
+  `deleted_at` DATETIME NULL,
+  `updated_at` DATETIME NULL,
   PRIMARY KEY (`post_id`),
   UNIQUE INDEX `post_id_UNIQUE` (`post_id` ASC) VISIBLE,
   INDEX `user_id_fk_idx` (`user_id` ASC) VISIBLE,
@@ -14,3 +17,7 @@ CREATE TABLE IF NOT EXISTS `posts` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+
+
+
