@@ -2,11 +2,8 @@ package models
 
 type User struct {
 	Base
-	Email    string `json:"email"`
-	FullName string `json:"full_name"`
-	// CreatedAt  time.Time `json:"created_at"`
-	// UpdatedAt  time.Time `json:"updated_at"`
-	// DeletedAt  time.Time `json:"deleted_at"`
+	Email      string `json:"email"`
+	FullName   string `json:"full_name"`
 	ProfileUrl string `json:"profile_url"`
 	Bio        string `json:"bio"`
 	CoverUrl   string `json:"cover_url"`
