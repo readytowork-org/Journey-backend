@@ -1,7 +1,7 @@
 package models
 
 type Comment struct {
-	CommentId  int64  `json:"comment_id"`
+	Base
 	Comment    string `json:"comment"`
 	PostId     int64  `json:"post_id"`
 	Likes      int    `json:"likes"`
