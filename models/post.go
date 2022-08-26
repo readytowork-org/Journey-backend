@@ -1,6 +1,13 @@
 package models
 
-type Post struct {
+const (
+	Public    = "public"
+	Private   = "private"
+	Followers = "followers"
+)
+
+type Posts struct {
+	Base
 	PostId   int64  `json:"post_id"`
 	Title    string `json:"title"`
 	Caption  string `json:"caption"`
