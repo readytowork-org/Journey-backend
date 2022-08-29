@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS followers
     created_at     DATETIME     NOT NULL,
     PRIMARY KEY (user_id, follow_user_id),
     INDEX follow_user_id_fk_idx (follow_user_id ASC) VISIBLE,
-    CONSTRAINT user_id_fk
+    CONSTRAINT f_user_id_fk
         FOREIGN KEY (user_id)
             REFERENCES users (id)
             ON DELETE NO ACTION

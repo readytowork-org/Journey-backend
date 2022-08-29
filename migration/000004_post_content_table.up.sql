@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS post_contents
     post_id     INT UNSIGNED NOT NULL,
     PRIMARY KEY (id),
     INDEX post_id_fk_idx (post_id ASC) VISIBLE,
-    CONSTRAINT post_id_fk
+    CONSTRAINT contents_post_id_fk
         FOREIGN KEY (post_id)
             REFERENCES posts (id)
             ON DELETE NO ACTION
