@@ -33,7 +33,7 @@ func (c PostContentsRepository) WithTrx(trxHandle *gorm.DB) PostContentsReposito
 }
 
 // Save -> PostContents
-func (c PostContentsRepository) CreatePostContents(PostContents models.PostContents) error {
+func (c PostContentsRepository) CreatePostContents(PostContents []models.PostContents) error {
 	return c.db.DB.Create(&PostContents).Error
 }
 
