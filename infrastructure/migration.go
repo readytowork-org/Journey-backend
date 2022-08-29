@@ -51,7 +51,7 @@ func (m Migrations) Migrate() {
 	migrations, err := migrate.New("file://migration/", "mysql://"+dsn)
 
 	m.logger.Zap.Info("--- Running Migration ---")
-	err = migrations.Steps(1000)
+	err = migrations.Up()
 	if err != nil {
 		m.logger.Zap.Error("Error in migration: ", err.Error())
 	}
