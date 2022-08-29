@@ -8,4 +8,6 @@ var Module = fx.Options(
 	fx.Provide(NewStorageBucketService),
 	fx.Provide(NewUserService),
 	fx.Provide(NewS3BucketService),
+	fx.Provide(NewPostsService),
+	fx.Provide(NewPostContentsService),
 )
