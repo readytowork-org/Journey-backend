@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `profile_url` VARCHAR(255) NULL,
   `bio` VARCHAR(500) NULL,
   `cover_url` VARCHAR(255) NULL,
-  `is_creater` TINYINT NOT NULL,
+  `is_creator` TINYINT NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
