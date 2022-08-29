@@ -27,7 +27,7 @@ func (c PostContentsService) WithTrx(trxHandle *gorm.DB) PostContentsService {
 }
 
 // CreatePostContents -> call to create the PostContents
-func (c PostContentsService) CreatePostContents(PostContents models.PostContents) error {
+func (c PostContentsService) CreatePostContents(PostContents []models.PostContents) error {
 	err := c.repository.CreatePostContents(PostContents)
 	return err
 }
