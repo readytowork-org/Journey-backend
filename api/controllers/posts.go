@@ -56,8 +56,8 @@ func (cc PostsController) CreatePosts(c *gin.Context) {
 		responses.HandleError(c, err)
 		return
 	}
-	postContents := []models.PostContents{}
 
+	var postContents []models.PostContents
 	for _, postC := range Posts.PostContents {
 		postC.PostId = Posts.PostId
 		postContents = append(postContents, postC)
@@ -115,8 +115,7 @@ func (cc PostsController) DeletePosts(c *gin.Context) {
 		return
 	}
 
-	responses.SuccessJSON(c, http.StatusOK, "Posts Deleted Sucessfully")
-
+	responses.SuccessJSON(c, http.StatusOK, "Posts Deleted Successfully")
 }
 
 // GetAllPosts -> Get All Posts
