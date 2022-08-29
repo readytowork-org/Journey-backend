@@ -24,21 +24,20 @@ func (c PostsService) WithTrx(trxHandle *gorm.DB) PostsService {
 	return c
 }
 
-// CreatePosts -> call to create the Posts
-func (c PostsService) CreatePosts(Posts models.Posts) error {
-	err := c.repository.CreatePosts(Posts)
-	return err
+// CreatePosts -> call to create the Post
+func (c PostsService) CreatePosts(posts models.Post) error {
+	return c.repository.CreatePosts(posts)
 }
 
-func (c PostsService) UpdatePosts(Posts models.Posts) error {
-	return c.repository.UpdatePosts(Posts)
+func (c PostsService) UpdatePosts(posts models.Post) error {
+	return c.repository.UpdatePosts(posts)
 }
 
 func (c PostsService) DeletePosts(ID int64) error {
 	return c.repository.DeletePosts(ID)
 }
 
-// GetAllPost -> call to get all the Post
-func (c PostsService) GetAllPosts(pagination utils.Pagination) ([]models.Posts, int64, error) {
+// GetAllPosts -> call to get all the Post
+func (c PostsService) GetAllPosts(pagination utils.Pagination) ([]models.Post, int64, error) {
 	return c.repository.GetAllPosts(pagination)
 }

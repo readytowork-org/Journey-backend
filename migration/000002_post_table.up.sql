@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS posts
     user_id    INT UNSIGNED                            NOT NULL,
     likes      INT                                     NOT NULL,
     audience   ENUM ('private', 'public', 'followers') NOT NULL DEFAULT 'public',
-    create_at  DATETIME                                NOT NULL,
+    created_at DATETIME                                NOT NULL,
     updated_at DATETIME                                NULL,
     deleted_at DATETIME                                NULL,
     PRIMARY KEY (id),

@@ -5,7 +5,7 @@ type Comment struct {
 	Comment    string `json:"comment"`
 	PostId     int64  `json:"post_id"`
 	Likes      int    `json:"likes"`
-	ParentIdFk int64  `json:"parent_id_fk"`
+	ParentIdFk *int64 `json:"parent_id_fk"`
 	UserId     int64  `json:"user_id"`
 }
 

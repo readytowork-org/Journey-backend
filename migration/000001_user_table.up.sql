@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS users
     bio         VARCHAR(500) NULL,
     cover_url   VARCHAR(255) NULL,
     is_creator  TINYINT      NOT NULL,
-    create_at   DATETIME     NOT NULL,
+    created_at  DATETIME     NOT NULL,
     updated_at  DATETIME     NULL,
     deleted_at  DATETIME     NULL,
     PRIMARY KEY (id),
