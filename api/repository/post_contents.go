@@ -40,10 +40,9 @@ func (c PostContentsRepository) CreatePostContents(PostContents []models.PostCon
 // Update -> PostContents
 func (c PostContentsRepository) UpdatePostContents(PostContents models.PostContents) error {
 	return c.db.DB.Model(&models.PostContents{}).
-		Where("id = ?", PostContents.ContentId).
+		Where("id = ?", PostContents.Id).
 		Updates(map[string]interface{}{
-			"content_id":  PostContents.ContentId,
-			"content_url": PostContents.ContentId,
+			"content_url": PostContents.ContentUrl,
 			"post_id":     PostContents.PostId,
 		}).Error
 }
