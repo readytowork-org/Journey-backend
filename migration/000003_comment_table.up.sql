@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS comments
             ON UPDATE NO ACTION,
     CONSTRAINT post_id_fk
         FOREIGN KEY (post_id)
-            REFERENCES posts (post_id)
+            REFERENCES posts (id)
             ON DELETE NO ACTION
             ON UPDATE NO ACTION,
     CONSTRAINT user_id_fk

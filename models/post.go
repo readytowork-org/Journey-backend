@@ -16,3 +16,7 @@ type Posts struct {
 	Audience     string         `json:"audience"`
 	PostContents []PostContents `json:"posts_contents"`
 }
+
+func (p Posts) TableName() string {
+	return "posts"
+}
