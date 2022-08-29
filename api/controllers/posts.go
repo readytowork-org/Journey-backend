@@ -16,21 +16,25 @@ import (
 )
 
 type PostsController struct {
-	logger       infrastructure.Logger
-	PostsService services.PostsService
-	env          infrastructure.Env
+	logger              infrastructure.Logger
+	PostsService        services.PostsService
+	PostContentsService services.PostContentsService
+	env                 infrastructure.Env
 }
 
 // NewPostsController -> constructor
 func NewPostsController(
 	logger infrastructure.Logger,
 	postsService services.PostsService,
+	PostContentsService services.PostContentsService,
 	env infrastructure.Env,
+
 ) PostsController {
 	return PostsController{
-		logger:       logger,
-		PostsService: postsService,
-		env:          env,
+		logger:              logger,
+		PostsService:        postsService,
+		PostContentsService: PostContentsService,
+		env:                 env,
 	}
 }
 
@@ -48,6 +52,19 @@ func (cc PostsController) CreatePosts(c *gin.Context) {
 
 	if err := cc.PostsService.WithTrx(trx).CreatePosts(Posts); err != nil {
 		cc.logger.Zap.Error("Error [CreatePosts] [db CreatePosts]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to create Posts")
+		responses.HandleError(c, err)
+		return
+	}
+	postContents := []models.PostContents{}
+
+	for _, postC := range Posts.PostContents {
+		postC.PostId = Posts.PostId
+		postContents = append(postContents, postC)
+	}
+
+	if err := cc.PostContentsService.WithTrx(trx).CreatePostContents(postContents); err != nil {
+		cc.logger.Zap.Error("Error [CreatePostContents] [db CreatePostContents] : ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to create Posts")
 		responses.HandleError(c, err)
 		return
