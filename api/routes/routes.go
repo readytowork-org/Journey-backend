@@ -5,7 +5,6 @@ import "go.uber.org/fx"
 // Module exports dependency to container
 var Module = fx.Options(
 	fx.Provide(NewRoutes),
-	fx.Provide(NewUtilityRoutes),
 	fx.Provide(NewUserRoutes),
 	fx.Provide(NewPostRoutes),
 )
@@ -20,11 +19,9 @@ type Route interface {
 
 // NewRoutes sets up routes
 func NewRoutes(
-	utilityRoutes UtilityRoutes,
 	userRoutes UserRoutes,
 ) Routes {
 	return Routes{
-		utilityRoutes,
 		userRoutes,
 	}
 }
