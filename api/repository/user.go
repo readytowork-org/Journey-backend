@@ -32,12 +32,21 @@ func (c UserRepository) WithTrx(trxHandle *gorm.DB) UserRepository {
 	return c
 }
 
-// Save -> User
+// GetOneUser -> gets one user of userId
+func (c UserRepository) GetOneUser(userId int64) (user models.User, err error) {
+	return user, c.db.DB.
+		Model(&models.User{}).
+		Where("id = ?", userId).
+		First(&user).
+		Error
+}
+
+// CreateUser -> User
 func (c UserRepository) CreateUser(user models.User) error {
 	return c.db.DB.Create(&user).Error
 }
 
-// Update -> User
+// UpdateUser -> User
 func (c UserRepository) UpdateUser(user models.User) error {
 	return c.db.DB.Model(&models.User{}).
 		Where("id = ?", user.ID).
@@ -54,13 +63,13 @@ func (c UserRepository) UpdateUser(user models.User) error {
 		}).Error
 }
 
-// Delete -> User
+// DeleteUser -> User
 func (c UserRepository) DeleteUser(ID int64) error {
 	return c.db.DB.Where("id = ?", ID).
 		Delete(&models.User{}).Error
 }
 
-// GetAllUser -> Get All users
+// GetAllUsers -> Get All users
 func (c UserRepository) GetAllUsers(pagination utils.Pagination) ([]models.User, int64, error) {
 	var users []models.User
 	var totalRows int64 = 0

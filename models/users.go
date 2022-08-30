@@ -2,12 +2,12 @@ package models
 
 type User struct {
 	Base
-	Email      string `json:"email"`
-	FullName   string `json:"full_name"`
-	ProfileUrl string `json:"profile_url"`
-	Bio        string `json:"bio"`
-	CoverUrl   string `json:"cover_url"`
-	IsCreator  bool   `json:"is_creator"`
+	Email      string  `json:"email"`
+	FullName   string  `json:"full_name"`
+	ProfileUrl *string `json:"profile_url"`
+	Bio        *string `json:"bio"`
+	CoverUrl   *string `json:"cover_url"`
+	IsCreator  bool    `json:"is_creator"`
 }
 
 // TableName gives table name of model
