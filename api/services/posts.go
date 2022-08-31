@@ -34,6 +34,10 @@ func (c PostsService) UpdatePosts(Posts models.Posts) error {
 	return c.repository.UpdatePosts(Posts)
 }
 
+func (c PostsService) GetOnePost(postId int64) (Posts models.Posts, err error) {
+	return c.repository.GetOnePost(postId)
+}
+
 func (c PostsService) DeletePosts(ID int64) error {
 	return c.repository.DeletePosts(ID)
 }
