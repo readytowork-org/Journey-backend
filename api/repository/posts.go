@@ -54,6 +54,15 @@ func (c PostsRepository) DeletePosts(ID int64) error {
 		Delete(&models.Posts{}).Error
 }
 
+// GetOneUser -> gets one post of postId
+func (c PostsRepository) GetOnePost(postId int64) (Posts models.Posts, err error) {
+	return Posts, c.db.DB.
+		Model(&models.Posts{}).
+		Where("id = ?", postId).
+		First(&Posts).
+		Error
+}
+
 // GetAllPosts -> Get All Posts
 func (c PostsRepository) GetAllPosts(pagination utils.Pagination) ([]models.Posts, int64, error) {
 	var Postss []models.Posts
