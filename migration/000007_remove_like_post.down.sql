@@ -1,0 +1,2 @@
+ALTER TABLE posts
+    ADD likes INT NOT NULL DEFAULT 0;
