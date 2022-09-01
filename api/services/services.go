@@ -8,4 +8,5 @@ var Module = fx.Options(
 	fx.Provide(NewPostsService),
 	fx.Provide(NewFirebaseService),
 	fx.Provide(NewPostContentsService),
+	fx.Provide(NewLikesService),
 )
