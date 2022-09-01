@@ -54,9 +54,12 @@ func (c PostsRepository) DeletePosts(ID int64) error {
 }
 
 // GetOneUser -> gets one post of postId
-func (c PostsRepository) GetOnePost(postId int64) (Posts models.Post, err error) {
+func (c PostsRepository) GetOnePost(postId int64, userId int64) (Posts models.UserPost, err error) {
 	return Posts, c.db.DB.
 		Model(&models.Post{}).
+		Select(`posts.*,(SELECT COUNT(post_id)
+		FROM post_likes JOIN posts p ON p.id = post_likes.post_id) like_count,
+	   IF((SELECT c.user_id FROM post_likes c WHERE user_id = ?) = ?, TRUE, FALSE) has_liked`, userId, userId).
 		Where("id = ?", postId).
 		First(&Posts).
 		Error
