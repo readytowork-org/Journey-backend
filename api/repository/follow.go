@@ -29,25 +29,19 @@ func (c FollowRepository) WithTrx(trxHandle *gorm.DB) FollowRepository {
 }
 
 func (c FollowRepository) GetFollowerCount(ID int64) (count int, err error) {
-
 	return count, c.db.DB.Select("COUNT(user_id)").Where("follow_user_id = ?", ID).Find(&count).Error
-
 }
 
 func (c FollowRepository) GetFollowingCount(ID int64) (count int, err error) {
-
 	return count, c.db.DB.Select("COUNT(follow_user_id)").Where("user_id = ?", ID).Find(&count).Error
-
 }
 
 func (c FollowRepository) GetFollowings(ID int64) (follower []models.User, err error) {
-
 	return follower, c.db.DB.Model(&models.User{}).Select("users.*").Joins("left join followers on followers.follow_user_id = users.user_id ").Where("user_id = ?", ID).Group("users.id").Find(&follower).Error
 
 }
 
 func (c FollowRepository) GetFollowers(ID int64) (follower []models.User, err error) {
-
 	return follower, c.db.DB.Model(&models.User{}).Select("users.*").Joins("left join followers on followers.user_id = users.user_id ").Where("follow_user_id = ?", ID).Group("users.id").Find(&follower).Error
 }
 
@@ -59,11 +53,3 @@ func (c FollowRepository) UnFollow(ID int64) error {
 	return c.db.DB.Where("id = ?", ID).
 		Delete(&models.User{}).Error
 }
-
-// select * from users
-// inner join followers
-// on followers.follow_user_id = user_id  AND user_id = Id
-
-// select * from users
-// inner join followers
-// on followers.follow_user_id = users.user_id  AND follow_user_id = Id
