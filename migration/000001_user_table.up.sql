@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users
 (
-    id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    id          VARCHAR(50)  NOT NULL UNIQUE,
     email       VARCHAR(45)  NOT NULL,
     full_name   VARCHAR(45)  NOT NULL,
     profile_url VARCHAR(255) NULL,
