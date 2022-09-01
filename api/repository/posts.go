@@ -54,17 +54,17 @@ func (c PostsRepository) DeletePosts(ID int64) error {
 }
 
 // GetOneUser -> gets one post of postId
-func (c PostsRepository) GetOnePost(postId int64) (Posts models.Posts, err error) {
+func (c PostsRepository) GetOnePost(postId int64) (Posts models.Post, err error) {
 	return Posts, c.db.DB.
-		Model(&models.Posts{}).
+		Model(&models.Post{}).
 		Where("id = ?", postId).
 		First(&Posts).
 		Error
 }
 
 // GetAllPosts -> Get All Posts
-func (c PostsRepository) GetAllPosts(pagination utils.Pagination) ([]models.Posts, int64, error) {
-	var Postss []models.Posts
+func (c PostsRepository) GetAllPosts(pagination utils.Pagination) ([]models.Post, int64, error) {
+	var Postss []models.Post
 	var totalRows int64 = 0
 	queryBuilder := c.db.DB.Limit(pagination.PageSize).Offset(pagination.Offset).Order("created_at desc")
 	queryBuilder = queryBuilder.Model(&models.Post{})

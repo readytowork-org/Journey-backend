@@ -33,7 +33,7 @@ func (c PostsService) UpdatePosts(posts models.Post) error {
 	return c.repository.UpdatePosts(posts)
 }
 
-func (c PostsService) GetOnePost(postId int64) (Posts models.Posts, err error) {
+func (c PostsService) GetOnePost(postId int64) (Posts models.Post, err error) {
 	return c.repository.GetOnePost(postId)
 }
 
