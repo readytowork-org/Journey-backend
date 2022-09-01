@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS followers
 (
-    user_id        INT UNSIGNED NOT NULL,
-    follow_user_id INT UNSIGNED NOT NULL,
+    user_id         VARCHAR(50) NOT NULL,
+    follow_user_id  VARCHAR(50) NOT NULL,
     created_at     DATETIME     NOT NULL,
     PRIMARY KEY (user_id, follow_user_id),
     INDEX follow_user_id_fk_idx (follow_user_id ASC) VISIBLE,

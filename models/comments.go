@@ -6,7 +6,7 @@ type Comment struct {
 	PostId     int64  `json:"post_id"`
 	Likes      int    `json:"likes"`
 	ParentIdFk *int64 `json:"parent_id_fk"`
-	UserId     int64  `json:"user_id"`
+	UserId     string `json:"user_id"`
 }
 
 func (c Comment) TableName() string {

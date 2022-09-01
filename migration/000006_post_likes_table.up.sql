@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS `post_likes`
 (
     `post_id`    INT UNSIGNED NOT NULL,
-    `user_id`    INT UNSIGNED NOT NULL,
+    `user_id`    VARCHAR(50) NOT NULL,
     `created_at` DATETIME     NOT NULL,
     PRIMARY KEY (`post_id`, `user_id`),
     INDEX `post_id_fk_idx` (`post_id` ASC) VISIBLE,

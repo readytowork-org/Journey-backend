@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS comments
     post_id      INT UNSIGNED NOT NULL,
     likes        INT          NULL DEFAULT 0,
     parent_id_fk INT UNSIGNED NULL,
-    user_id      INT UNSIGNED NOT NULL,
+    user_id      VARCHAR(50) NOT NULL,
     create_at    DATETIME     NOT NULL,
     updated_at   DATETIME     NULL,
     deleted_at   DATETIME     NULL,
