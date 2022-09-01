@@ -41,61 +41,48 @@ func NewPostsController(
 	}
 }
 
-// CreatePosts -> Create Posts
+// CreatePosts -> Create Post
 func (cc PostsController) CreatePosts(c *gin.Context) {
-	Posts := models.Posts{}
 	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
 
-	if err := c.ShouldBindJSON(&Posts); err != nil {
+	posts := models.Post{}
+	if err := c.ShouldBindJSON(&posts); err != nil {
 		cc.logger.Zap.Error("Error [CreatePosts] (ShouldBindJson) : ", err)
-		err := errors.BadRequest.Wrap(err, "Failed to bind Posts data")
+		err := errors.BadRequest.Wrap(err, "Failed to bind Post data")
 		responses.HandleError(c, err)
 		return
 	}
 
-	if err := cc.PostsService.WithTrx(trx).CreatePosts(Posts); err != nil {
+	if err := cc.PostsService.WithTrx(trx).CreatePosts(posts); err != nil {
 		cc.logger.Zap.Error("Error [CreatePosts] [db CreatePosts]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to create Posts")
-		responses.HandleError(c, err)
-		return
-	}
-	postContents := []models.PostContents{}
-
-	for _, postC := range Posts.PostContents {
-		postC.PostId = Posts.PostId
-		postContents = append(postContents, postC)
-	}
-
-	if err := cc.PostContentsService.WithTrx(trx).CreatePostContents(postContents); err != nil {
-		cc.logger.Zap.Error("Error [CreatePostContents] [db CreatePostContents] : ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to create Posts")
+		err := errors.InternalError.Wrap(err, "Failed to create Post")
 		responses.HandleError(c, err)
 		return
 	}
 
-	responses.SuccessJSON(c, http.StatusOK, "Posts Created Sucessfully")
+	responses.SuccessJSON(c, http.StatusOK, "Post Created Successfully")
 }
 
-// UpdatePosts -> Update Posts
+// UpdatePosts -> Update Post
 func (cc PostsController) UpdatePosts(c *gin.Context) {
-	Posts := models.Posts{}
 	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
 
-	if err := c.ShouldBindJSON(&Posts); err != nil {
+	posts := models.Post{}
+	if err := c.ShouldBindJSON(&posts); err != nil {
 		cc.logger.Zap.Error("Error [UpdatePosts] (ShouldBindJson) : ", err)
-		err := errors.BadRequest.Wrap(err, "Failed to bind Posts data")
+		err := errors.BadRequest.Wrap(err, "Failed to bind Post data")
 		responses.HandleError(c, err)
 		return
 	}
 
-	if err := cc.PostsService.WithTrx(trx).UpdatePosts(Posts); err != nil {
+	if err := cc.PostsService.WithTrx(trx).UpdatePosts(posts); err != nil {
 		cc.logger.Zap.Error("Error [UpdatePosts] [db UpdatePosts]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Update Posts")
+		err := errors.InternalError.Wrap(err, "Failed to Update Post")
 		responses.HandleError(c, err)
 		return
 	}
 
-	responses.SuccessJSON(c, http.StatusOK, "Posts Updated Sucessfully")
+	responses.SuccessJSON(c, http.StatusOK, "Post Updated Sucessfully")
 }
 
 func (cc PostsController) PostLikes(c *gin.Context) {
@@ -143,35 +130,32 @@ func (cc PostsController) PostLikes(c *gin.Context) {
 // DeletePosts -> Delete Posts
 func (cc PostsController) DeletePosts(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
-
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		err := errors.InternalError.Wrap(err, "Failed to Parse Post ID")
 		responses.HandleError(c, err)
 		return
 	}
 
 	err = cc.PostsService.DeletePosts(int64(id))
-
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		err := errors.InternalError.Wrap(err, "Failed to Parse Post ID")
 		responses.HandleError(c, err)
 		return
 	}
 
-	responses.SuccessJSON(c, http.StatusOK, "Posts Deleted Sucessfully")
-
+	responses.SuccessJSON(c, http.StatusOK, "Post Deleted Successfully")
 }
 
-// GetAllPosts -> Get All Posts
+// GetAllPosts -> Get All Post
 func (cc PostsController) GetAllPosts(c *gin.Context) {
 	pagination := utils.BuildPagination(c)
 	Posts, count, err := cc.PostsService.GetAllPosts(pagination)
 
 	if err != nil {
-		cc.logger.Zap.Error("Error finding Posts records", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to get Posts data")
+		cc.logger.Zap.Error("Error finding Post records", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to get Post data")
 		responses.HandleError(c, err)
 		return
 	}

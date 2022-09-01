@@ -6,13 +6,16 @@ const (
 	Followers = "followers"
 )
 
-type Posts struct {
+type Post struct {
 	Base
-	PostId       int64          `json:"post_id"`
 	Title        string         `json:"title"`
-	Caption      string         `json:"caption"`
+	Caption      *string        `json:"caption"`
 	UserId       int64          `json:"user_id"`
 	Likes        int            `json:"likes"`
 	Audience     string         `json:"audience"`
 	PostContents []PostContents `json:"posts_contents"`
+}
+
+func (p Post) TableName() string {
+	return "posts"
 }

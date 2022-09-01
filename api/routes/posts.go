@@ -18,10 +18,11 @@ type PostRoutes struct {
 // Setup Post routes
 func (i PostRoutes) Setup() {
 	i.logger.Zap.Info(" Setting up Post routes")
-	Posts := i.router.Gin.Group("/Posts")
+	Posts := i.router.Gin.Group("/post")
 	{
 		Posts.GET("", i.PostController.GetAllPosts)
 		Posts.POST("", i.trxMiddleware.DBTransactionHandle(), i.PostController.CreatePosts)
+		Posts.PUT("/:id", i.trxMiddleware.DBTransactionHandle(), i.PostController.UpdatePosts)
 		Posts.DELETE("/:id", i.PostController.DeletePosts)
 		Posts.POST("/like/:postId", i.PostController.PostLikes)
 		Posts.GET("/:id", i.PostController.GetOnePost)

@@ -46,34 +46,28 @@ func NewEnv() Env {
 
 // LoadEnv loads environment
 func (env *Env) LoadEnv() {
-	env.ServerPort = os.Getenv("ServerPort")
-	env.Environment = os.Getenv("Environment")
-	env.LogOutput = os.Getenv("LogOutput")
-
-	env.DBUsername = os.Getenv("DBUsername")
-	env.DBPassword = os.Getenv("DBPassword")
-	env.DBHost = os.Getenv("DBHost")
-	env.DBPort = os.Getenv("DBPort")
-	env.DBName = os.Getenv("DBName")
-
-	env.SentryDSN = os.Getenv("SentryDSN")
-	env.StorageBucketName = os.Getenv("StorageBucketName")
-
-	env.AdminEmail = os.Getenv("AdminEmail")
-	env.AdminPass = os.Getenv("AdminPass")
-
-	env.MailClientID = os.Getenv("MailClientID")
-	env.MailClientSecret = os.Getenv("MailClientSecret")
-	env.MailAccesstoken = os.Getenv("MailAccesstoken")
-	env.MailRefreshToken = os.Getenv("MailRefreshToken")
-
+	env.ServerPort = os.Getenv("SERVER_PORT")
+	env.Environment = os.Getenv("ENVIRONMENT")
+	env.LogOutput = os.Getenv("LOG_OUTPUT")
+	env.DBUsername = os.Getenv("DB_USERNAME")
+	env.DBPassword = os.Getenv("DB_PASSWORD")
+	env.DBHost = os.Getenv("DB_HOST")
+	env.DBPort = os.Getenv("DB_PORT")
+	env.DBName = os.Getenv("DB_NAME")
+	env.SentryDSN = os.Getenv("SENTRY_DSN")
+	env.StorageBucketName = os.Getenv("STORAGE_BUCKET_NAME")
+	env.AdminEmail = os.Getenv("ADMIN_EMAIL")
+	env.AdminPass = os.Getenv("ADMIN_PASS")
+	env.MailClientID = os.Getenv("MAIL_CLIENT_ID")
+	env.MailClientSecret = os.Getenv("MAIL_CLIENT_SECRET")
+	env.MailAccesstoken = os.Getenv("MAIL_ACCESSTOKEN")
+	env.MailRefreshToken = os.Getenv("MAIL_REFRESH_TOKEN")
 	env.AWS_S3_REGION = os.Getenv("AWS_S3_REGION")
 	env.AWS_S3_BUCKET = os.Getenv("AWS_S3_BUCKET")
 	env.AWS_ACCESS_KEY = os.Getenv("AWS_ACCESS_KEY")
 	env.AWS_SECRET_KEY = os.Getenv("AWS_SECRET_KEY")
-
-	env.TwilioBaseURL = os.Getenv("TwilioBaseURL")
-	env.TwilioAuthToken = os.Getenv("TwilioAuthToken")
-	env.TwilioSID = os.Getenv("TwilioSID")
-	env.TwilioSMSFrom = os.Getenv("TwilioSMSFrom")
+	env.TwilioBaseURL = os.Getenv("TWILIO_BASE_URL")
+	env.TwilioAuthToken = os.Getenv("TWILIO_AUTH_TOKEN")
+	env.TwilioSID = os.Getenv("TWILIO_SID")
+	env.TwilioSMSFrom = os.Getenv("TWILIO_SMSFROM")
 }

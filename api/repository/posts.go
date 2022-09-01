@@ -29,17 +29,16 @@ func (c PostsRepository) WithTrx(trxHandle *gorm.DB) PostsRepository {
 	return c
 }
 
-// Save -> Posts
-func (c PostsRepository) CreatePosts(Posts models.Posts) error {
-	return c.db.DB.Create(&Posts).Error
+// CreatePosts -> Post
+func (c PostsRepository) CreatePosts(posts models.Post) error {
+	return c.db.DB.Create(&posts).Error
 }
 
-// Update -> Posts
-func (c PostsRepository) UpdatePosts(Posts models.Posts) error {
-	return c.db.DB.Model(&models.Posts{}).
-		Where("id = ?", Posts.PostId).
+// UpdatePosts -> Post
+func (c PostsRepository) UpdatePosts(Posts models.Post) error {
+	return c.db.DB.Model(&models.Post{}).
+		Where("id = ?", Posts.ID).
 		Updates(map[string]interface{}{
-			"post_id":  Posts.PostId,
 			"title":    Posts.Title,
 			"caption":  Posts.Caption,
 			"user_id":  Posts.UserId,
@@ -48,10 +47,10 @@ func (c PostsRepository) UpdatePosts(Posts models.Posts) error {
 		}).Error
 }
 
-// Delete -> Posts
+// DeletePosts -> Post
 func (c PostsRepository) DeletePosts(ID int64) error {
 	return c.db.DB.Where("id = ?", ID).
-		Delete(&models.Posts{}).Error
+		Delete(&models.Post{}).Error
 }
 
 // GetOneUser -> gets one post of postId
@@ -68,7 +67,7 @@ func (c PostsRepository) GetAllPosts(pagination utils.Pagination) ([]models.Post
 	var Postss []models.Posts
 	var totalRows int64 = 0
 	queryBuilder := c.db.DB.Limit(pagination.PageSize).Offset(pagination.Offset).Order("created_at desc")
-	queryBuilder = queryBuilder.Model(&models.Posts{})
+	queryBuilder = queryBuilder.Model(&models.Post{})
 
 	if pagination.Keyword != "" {
 		searchQuery := "%" + pagination.Keyword + "%"
