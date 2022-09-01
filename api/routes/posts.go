@@ -24,6 +24,9 @@ func (i PostRoutes) Setup() {
 		Posts.POST("", i.trxMiddleware.DBTransactionHandle(), i.PostController.CreatePosts)
 		Posts.PUT("/:id", i.trxMiddleware.DBTransactionHandle(), i.PostController.UpdatePosts)
 		Posts.DELETE("/:id", i.PostController.DeletePosts)
+		Posts.POST("/like/:postId", i.PostController.PostLikes)
+		Posts.GET("/:id", i.PostController.GetOnePost)
+
 	}
 }
 

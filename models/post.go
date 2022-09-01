@@ -19,3 +19,9 @@ type Post struct {
 func (p Post) TableName() string {
 	return "posts"
 }
+
+type UserPost struct {
+	Post
+	HasLiked  bool  `json:"has_liked"`
+	LikeCount int64 `json:"like_count"`
+}

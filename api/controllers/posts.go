@@ -19,6 +19,7 @@ type PostsController struct {
 	logger              infrastructure.Logger
 	PostsService        services.PostsService
 	PostContentsService services.PostContentsService
+	LikesService        services.LikesService
 	env                 infrastructure.Env
 }
 
@@ -27,6 +28,7 @@ func NewPostsController(
 	logger infrastructure.Logger,
 	postsService services.PostsService,
 	PostContentsService services.PostContentsService,
+	LikesService services.LikesService,
 	env infrastructure.Env,
 
 ) PostsController {
@@ -34,6 +36,7 @@ func NewPostsController(
 		logger:              logger,
 		PostsService:        postsService,
 		PostContentsService: PostContentsService,
+		LikesService:        LikesService,
 		env:                 env,
 	}
 }
@@ -82,7 +85,49 @@ func (cc PostsController) UpdatePosts(c *gin.Context) {
 	responses.SuccessJSON(c, http.StatusOK, "Post Updated Sucessfully")
 }
 
-// DeletePosts -> Delete Post
+func (cc PostsController) PostLikes(c *gin.Context) {
+	userId := c.MustGet(constants.UID).(int64)
+	id, err := strconv.Atoi(c.Param("postId"))
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+	posts, err := cc.PostsService.GetOnePost(int64(id), userId)
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+	postLike := models.PostLike{PostId: posts.ID, UserId: userId}
+	err = cc.LikesService.CreateLikes(postLike)
+	if err != nil {
+		err = cc.LikesService.DeleteLikes(postLike)
+		if err != nil {
+			cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+			err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+			responses.HandleError(c, err)
+			return
+		}
+	}
+	userPostLike, err := cc.LikesService.GetUserPostLikes(postLike)
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	responses.JSON(c, http.StatusOK, userPostLike)
+
+}
+
+// DeletePosts -> Delete Posts
 func (cc PostsController) DeletePosts(c *gin.Context) {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -116,4 +161,26 @@ func (cc PostsController) GetAllPosts(c *gin.Context) {
 	}
 
 	responses.JSONCount(c, http.StatusOK, Posts, count)
+}
+
+func (cc PostsController) GetOnePost(c *gin.Context) {
+	userId := c.MustGet(constants.UID).(int64)
+
+	id, err := strconv.Atoi(c.Param("postId"))
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+	posts, err := cc.PostsService.GetOnePost(int64(id), userId)
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+	responses.JSON(c, http.StatusOK, posts)
 }

@@ -53,7 +53,19 @@ func (c PostsRepository) DeletePosts(ID int64) error {
 		Delete(&models.Post{}).Error
 }
 
-// GetAllPosts -> Get All Post
+// GetOneUser -> gets one post of postId
+func (c PostsRepository) GetOnePost(postId int64, userId int64) (Posts models.UserPost, err error) {
+	return Posts, c.db.DB.
+		Model(&models.Post{}).
+		Select(`posts.*,(SELECT COUNT(post_id)
+		FROM post_likes JOIN posts p ON p.id = post_likes.post_id) like_count,
+	   IF((SELECT c.user_id FROM post_likes c WHERE user_id = ?) = ?, TRUE, FALSE) has_liked`, userId, userId).
+		Where("id = ?", postId).
+		First(&Posts).
+		Error
+}
+
+// GetAllPosts -> Get All Posts
 func (c PostsRepository) GetAllPosts(pagination utils.Pagination) ([]models.Post, int64, error) {
 	var Postss []models.Post
 	var totalRows int64 = 0
