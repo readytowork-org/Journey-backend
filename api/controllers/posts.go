@@ -95,7 +95,7 @@ func (cc PostsController) PostLikes(c *gin.Context) {
 		responses.HandleError(c, err)
 		return
 	}
-	posts, err := cc.PostsService.GetOnePost(int64(id))
+	posts, err := cc.PostsService.GetOnePost(int64(id), userId)
 
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
@@ -164,6 +164,8 @@ func (cc PostsController) GetAllPosts(c *gin.Context) {
 }
 
 func (cc PostsController) GetOnePost(c *gin.Context) {
+	userId := c.MustGet(constants.UID).(int64)
+
 	id, err := strconv.Atoi(c.Param("postId"))
 
 	if err != nil {
@@ -172,7 +174,7 @@ func (cc PostsController) GetOnePost(c *gin.Context) {
 		responses.HandleError(c, err)
 		return
 	}
-	posts, err := cc.PostsService.GetOnePost(int64(id))
+	posts, err := cc.PostsService.GetOnePost(int64(id), userId)
 
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
