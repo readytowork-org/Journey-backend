@@ -24,6 +24,7 @@ func (i CommentRoutes) Setup() {
 		Posts.POST("", i.trxMiddleware.DBTransactionHandle(), i.CommentController.CreateComment)
 		Posts.PUT("/:id", i.trxMiddleware.DBTransactionHandle(), i.CommentController.UpdateComment)
 		Posts.DELETE("/:id", i.CommentController.DeleteComment)
+		Posts.GET("/like/:id", i.CommentController.CreateCommentLike)
 
 	}
 }
@@ -37,10 +38,10 @@ func NewCommentRoutes(
 	trxMiddleware middlewares.DBTransactionMiddleware,
 ) CommentRoutes {
 	return CommentRoutes{
-		router:         router,
-		logger:         logger,
+		router:            router,
+		logger:            logger,
 		CommentController: CommentController,
-		middleware:     middleware,
-		trxMiddleware:  trxMiddleware,
+		middleware:        middleware,
+		trxMiddleware:     trxMiddleware,
 	}
 }
