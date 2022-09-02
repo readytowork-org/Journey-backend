@@ -12,3 +12,9 @@ type Comment struct {
 func (c Comment) TableName() string {
 	return "comments"
 }
+
+type UserComment struct {
+	Comment
+	HasLiked  bool  `json:"has_liked"`
+	LikeCount int64 `json:"like_count"`
+}
