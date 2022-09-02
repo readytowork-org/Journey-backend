@@ -47,3 +47,27 @@ func BuildPagination(c *gin.Context) Pagination {
 		Keyword:    keyword,
 	}
 }
+type CursorPagination struct {
+
+	PageSize   int
+	Cursor    string
+}
+
+//BuildPagination -> builds the pagination
+func BuildCursorPagination(c *gin.Context) CursorPagination {
+	pageSizeStr := c.Query("pageSize")
+
+	cursor:= c.Query("cursor")
+
+	pageSize, err := strconv.Atoi(pageSizeStr)
+	if err != nil || pageSize <= 0 {
+		pageSize = 10
+	}
+	return CursorPagination{
+		
+		PageSize: pageSize,
+		Cursor: cursor,
+	
+	
+	}
+}
