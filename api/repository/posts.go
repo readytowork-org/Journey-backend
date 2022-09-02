@@ -4,6 +4,7 @@ import (
 	"boilerplate-api/infrastructure"
 	"boilerplate-api/models"
 	"boilerplate-api/utils"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -42,7 +43,6 @@ func (c PostsRepository) UpdatePosts(Posts models.Post) error {
 			"title":    Posts.Title,
 			"caption":  Posts.Caption,
 			"user_id":  Posts.UserId,
-			"likes":    Posts.Likes,
 			"audience": Posts.Audience,
 		}).Error
 }
@@ -67,20 +67,36 @@ func (c PostsRepository) GetOnePost(postId int64, userId int64) (Posts models.Us
 
 // GetAllPosts -> Get All Posts
 func (c PostsRepository) GetAllPosts(pagination utils.Pagination) ([]models.Post, int64, error) {
-	var Postss []models.Post
+	var Posts []models.Post
 	var totalRows int64 = 0
 	queryBuilder := c.db.DB.Limit(pagination.PageSize).Offset(pagination.Offset).Order("created_at desc")
 	queryBuilder = queryBuilder.Model(&models.Post{})
 
 	if pagination.Keyword != "" {
 		searchQuery := "%" + pagination.Keyword + "%"
-		queryBuilder.Where(c.db.DB.Where("`Postss`.`name` LIKE ?", searchQuery))
+		queryBuilder.Where(c.db.DB.Where("`Posts`.`name` LIKE ?", searchQuery))
 	}
 
 	err := queryBuilder.
-		Find(&Postss).
+		Find(&Posts).
 		Offset(-1).
 		Limit(-1).
 		Count(&totalRows).Error
-	return Postss, totalRows, err
+	return Posts, totalRows, err
 }
+//GetCreatorPosts-> Get Creator Posts
+func (c PostsRepository) CreatorPosts(cursorPagination utils.CursorPagination, userId string) (Posts []models.Post, err error) {
+	
+	parsedCursor, _ := time.Parse(time.RFC3339, cursorPagination.Cursor)
+	queryBuilder :=c.db.DB.Model(&models.Post{}).Select(`posts.*`).Where("user_id= ? ",userId).Limit(cursorPagination.PageSize)
+	if cursorPagination.Cursor!="" {
+		queryBuilder=queryBuilder.Where("created_at < ?",parsedCursor)
+	}
+   
+	return Posts ,queryBuilder.Order("created_at desc").Find(&Posts).
+	Error 
+	
+}
+
+
+

@@ -11,7 +11,6 @@ type Post struct {
 	Title        string         `json:"title"`
 	Caption      *string        `json:"caption"`
 	UserId       string         `json:"user_id"`
-	Likes        int            `json:"likes"`
 	Audience     string         `json:"audience"`
 	PostContents []PostContents `json:"posts_contents"`
 }

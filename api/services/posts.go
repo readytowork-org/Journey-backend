@@ -45,3 +45,8 @@ func (c PostsService) DeletePosts(ID int64) error {
 func (c PostsService) GetAllPosts(pagination utils.Pagination) ([]models.Post, int64, error) {
 	return c.repository.GetAllPosts(pagination)
 }
+
+// CreatorPosts -> call to get all creator posts
+func (c PostsService) CreatorPosts(cursorPagination utils.CursorPagination,userId string) ([]models.Post, error) {
+	return c.repository.CreatorPosts(cursorPagination,userId);
+}
