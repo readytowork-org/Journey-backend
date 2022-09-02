@@ -26,6 +26,8 @@ func (i PostRoutes) Setup() {
 		Posts.DELETE("/:id", i.PostController.DeletePosts)
 		Posts.POST("/like/:postId", i.PostController.PostLikes)
 		Posts.GET("/:id", i.PostController.GetOnePost)
+		Posts.GET("/creator", i.PostController.GetCreatorPosts);
+
 
 	}
 }
