@@ -37,3 +37,7 @@ func (c LikesService) GetUserPostLikes(likes models.PostLike) (postLike models.U
 func (c LikesService) GetOneLike(postId models.PostLike) (userId models.PostLike, err error) {
 	return c.repository.GetOneLike(postId)
 }
+
+// func (c LikesService) GetUsersOfPostLikes(ID int64) (userId models.User, err error) {
+// 	return c.repository.GetUsersOfPostLikes(ID)
+// }
