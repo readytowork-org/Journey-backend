@@ -117,3 +117,46 @@ func (cc CommentController) GetAllComments(c *gin.Context) {
 
 	responses.JSONCount(c, http.StatusOK, comments, count)
 }
+
+func (cc CommentController) CreateCommentLike(c *gin.Context) {
+	userId := c.MustGet(constants.UID).(int64)
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	cc.commentService.GetOneComment(int64(id), userId)
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+	commentLike := models.CommentLikes{UserId: userId, CommentId: int64(id)}
+	err = cc.commentService.CreateCommentLike(commentLike)
+
+	if err != nil {
+		err = cc.commentService.DeleteCommentLike(commentLike)
+		if err != nil {
+			cc.logger.Zap.Error("Error [DeleteCommentLike] [Conversion Error]: ", err.Error())
+			err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+			responses.HandleError(c, err)
+			return
+		}
+	}
+
+	userCommentLike, err := cc.commentService.GetUserCommentLike(commentLike)
+	if err != nil {
+		cc.logger.Zap.Error("Error [UserCommentLike] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+	responses.SuccessJSON(c, http.StatusOK, userCommentLike)
+}
+
+// func (cc CommentController) DeleteCommentLike(c *gin.Context) {}

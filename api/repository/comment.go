@@ -79,3 +79,28 @@ func (c CommentRepository) GetAllComments(pagination utils.Pagination) ([]models
 		Count(&totalRows).Error
 	return comments, totalRows, err
 }
+
+func (c CommentRepository) CreateCommentLike(commentLikes models.CommentLikes) error {
+	return c.db.DB.Create(&commentLikes).Error
+}
+
+func (c CommentRepository) DeleteCommentLike(commentLikes models.CommentLikes) error {
+	return c.db.DB.Delete(&commentLikes).Error
+}
+
+func (c CommentRepository) GetOneComment(id int64, userId int64) (comment models.UserComment, err error) {
+	return comment, c.db.DB.Model(&models.Comment{}).Select(`comments.*,(SELECT COUNT(comment_id)
+	FROM comment_likes JOIN comments p ON p.id = comment_likes.comment_id) like_count,
+   IF((SELECT c.user_id FROM comment_likes c WHERE user_id = ?) = ?, TRUE, FALSE) has_liked`, userId, userId).
+		Where("id = ? ", id).Find(&comment).Error
+}
+
+func (c CommentRepository) GetUserCommentLike(likes models.CommentLikes) (commentLike models.UserCommentLike, err error) {
+	err = c.db.DB.Select(`comment_id,
+	(SELECT COUNT(comment_id)
+	 FROM comment_likes
+	 JOIN comments p ON p.id = comment_likes.comment_id) like_count,
+	IF((SELECT c.user_id FROM comment_likes c WHERE user_id = ?) = ?, TRUE, FALSE) 
+	has_liked`, likes.UserId, likes.UserId).Model(&models.CommentLikes{}).Where("comment_id = ?", likes.CommentId).Error
+	return commentLike, err
+}

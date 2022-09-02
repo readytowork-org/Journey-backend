@@ -44,3 +44,19 @@ func (c CommentService) UpdateComment(comment models.Comment) error {
 func (c CommentService) DeleteComment(ID int64) error {
 	return c.repository.DeleteComment(ID)
 }
+
+func (c CommentService) CreateCommentLike(commentLike models.CommentLikes) error {
+	return c.repository.CreateCommentLike(commentLike)
+}
+
+func (c CommentService) DeleteCommentLike(commentLike models.CommentLikes) error {
+	return c.repository.DeleteCommentLike(commentLike)
+}
+
+func (c CommentService) GetOneComment(id int64, userId int64) (comment models.UserComment, err error) {
+	return c.repository.GetOneComment(id, userId)
+}
+
+func (c CommentService) GetUserCommentLike(likes models.CommentLikes) (commentLike models.UserCommentLike, err error) {
+	return c.repository.GetUserCommentLike(likes)
+}
