@@ -1,0 +1,2 @@
+ALTER TABLE comments
+    ADD likes INT NOT NULL DEFAULT 0;
