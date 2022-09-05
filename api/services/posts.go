@@ -50,3 +50,7 @@ func (c PostsService) GetAllPosts(pagination utils.Pagination) ([]models.Post, i
 func (c PostsService) CreatorPosts(cursorPagination utils.CursorPagination,userId string) ([]models.Post, error) {
 	return c.repository.CreatorPosts(cursorPagination,userId);
 }
+// Get User Feeds -> call to get user feeds
+func (c PostsService) GetUserFeeds(cursorPagination utils.CursorPagination,userId string) ([]models.Post, error) {
+	return c.repository.GetUserFeed(cursorPagination,userId);
+}
