@@ -99,4 +99,19 @@ func (c PostsRepository) CreatorPosts(cursorPagination utils.CursorPagination, u
 }
 
 
+//GetUserFeed => Get Users Feeds
+
+func(c PostsRepository) GetUserFeed(cursorPagination utils.CursorPagination,userId string) (Posts []models.Post,err error){
+	parsedCursor, _ := time.Parse(time.RFC3339, cursorPagination.Cursor)
+	queryBuilder :=c.db.DB.Model(&models.Post{}).Select(`posts.*`).Joins(`join followers on followers.follow_user_id=posts.user_id`).Where(`posts.audience != 'private' and followers.user_id= ?`,userId ).
+	Limit(cursorPagination.PageSize)
+	if cursorPagination.Cursor!="" {
+		queryBuilder=queryBuilder.Where("created_at < ?",parsedCursor)
+	}
+   
+	return Posts ,queryBuilder.Order("created_at desc").Find(&Posts).
+	Error 
+}
+
+
 
