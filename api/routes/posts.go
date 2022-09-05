@@ -27,6 +27,7 @@ func (i PostRoutes) Setup() {
 		Posts.POST("/like/:postId", i.PostController.PostLikes)
 		Posts.GET("/:id", i.PostController.GetOnePost)
 		Posts.GET("/creator", i.PostController.GetCreatorPosts);
+		Posts.GET("/feed", i.PostController.GetUserFeeds);
 
 
 	}

@@ -174,6 +174,20 @@ func (cc PostsController) GetCreatorPosts(c *gin.Context) {
 		responses.HandleError(c, err)
 		return
 	}
+	responses.JSON(c, http.StatusOK, posts);
+}
+
+func (cc PostsController) GetUserFeeds(c *gin.Context) {
+		userId := c.Query(constants.UID);
+  cursorPagination :=utils.BuildCursorPagination(c);
+	posts,err := cc.PostsService.GetUserFeeds(cursorPagination,userId);
+
+	if err != nil {
+		cc.logger.Zap.Error("Error finding Post records", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to get Post data")
+		responses.HandleError(c, err)
+		return
+	}
 	
 
 	responses.JSON(c, http.StatusOK, posts);
