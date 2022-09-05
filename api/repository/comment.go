@@ -42,20 +42,14 @@ func (c CommentRepository) UpdateComment(comment models.Comment) error {
 	return c.db.DB.Model(&models.Comment{}).
 		Where("id = ?", comment.ID).
 		Updates(map[string]interface{}{
-			"id":           comment.ID,
-			"comment":      comment.Comment,
-			"created_at":   comment.CreatedAt,
-			"updated_at":   comment.UpdatedAt,
-			"deleted_at":   comment.DeletedAt,
-			"post_id":      comment.PostId,
-			"likes":        comment.Likes,
-			"parent_id_fk": comment.ParentIdFk,
-			"user_id":      comment.UserId,
+			"comment": comment.Comment,
 		}).Error
 }
 
 // Delete -> Comment
 func (c CommentRepository) DeleteComment(ID int64) error {
+	println("this is comment id")
+	println(ID)
 	return c.db.DB.Where("id = ?", ID).
 		Delete(&models.Comment{}).Error
 }
