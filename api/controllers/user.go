@@ -9,7 +9,6 @@ import (
 	"boilerplate-api/models"
 	"boilerplate-api/utils"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -60,7 +59,7 @@ func (cc UserController) CreateUser(c *gin.Context) {
 // UpdateUser -> Update User
 func (cc UserController) UpdateUser(c *gin.Context) {
 	user := models.User{}
-	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
+	id := c.Param("id")
 
 	if err := c.ShouldBindJSON(&user); err != nil {
 		cc.logger.Zap.Error("Error [UpdateUser] (ShouldBindJson) : ", err)
@@ -69,7 +68,16 @@ func (cc UserController) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	if err := cc.userService.WithTrx(trx).UpdateUser(user); err != nil {
+	_, err := cc.userService.GetOneUser(id)
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeleteUser] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "User not found !!")
+		responses.HandleError(c, err)
+		return
+	}
+	user.ID = id
+	if err := cc.userService.UpdateUser(user); err != nil {
 		cc.logger.Zap.Error("Error [UpdateUser] [db UpdateUser]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Update user")
 		responses.HandleError(c, err)
@@ -81,16 +89,18 @@ func (cc UserController) UpdateUser(c *gin.Context) {
 
 // DeleteUser -> Delete User
 func (cc UserController) DeleteUser(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id := c.Param("id")
+
+	_, err := cc.userService.GetOneUser(id)
 
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeleteUser] [Conversion Error]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Parse user ID")
+		err := errors.InternalError.Wrap(err, "User not found !!")
 		responses.HandleError(c, err)
 		return
 	}
 
-	err = cc.userService.DeleteUser(int64(id))
+	err = cc.userService.DeleteUser(id)
 
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeleteUser] [Conversion Error]: ", err.Error())

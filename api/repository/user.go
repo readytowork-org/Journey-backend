@@ -33,7 +33,7 @@ func (c UserRepository) WithTrx(trxHandle *gorm.DB) UserRepository {
 }
 
 // GetOneUser -> gets one user of userId
-func (c UserRepository) GetOneUser(userId int64) (user models.User, err error) {
+func (c UserRepository) GetOneUser(userId string) (user models.User, err error) {
 	return user, c.db.DB.
 		Model(&models.User{}).
 		Where("id = ?", userId).
@@ -53,9 +53,6 @@ func (c UserRepository) UpdateUser(user models.User) error {
 		Updates(map[string]interface{}{
 			"email":       user.Email,
 			"full_name":   user.FullName,
-			"created_at":  user.CreatedAt,
-			"updated_at":  user.UpdatedAt,
-			"deleted_at":  user.DeletedAt,
 			"profile_url": user.ProfileUrl,
 			"bio":         user.Bio,
 			"cover_url":   user.CoverUrl,
@@ -64,7 +61,7 @@ func (c UserRepository) UpdateUser(user models.User) error {
 }
 
 // DeleteUser -> User
-func (c UserRepository) DeleteUser(ID int64) error {
+func (c UserRepository) DeleteUser(ID string) error {
 	return c.db.DB.Where("id = ?", ID).
 		Delete(&models.User{}).Error
 }
