@@ -27,7 +27,7 @@ func (c UserService) WithTrx(trxHandle *gorm.DB) UserService {
 }
 
 // GetOneUser -> gets one user of userId
-func (c UserService) GetOneUser(userId int64) (user models.User, err error) {
+func (c UserService) GetOneUser(userId string) (user models.User, err error) {
 	return c.repository.GetOneUser(userId)
 }
 
@@ -46,6 +46,6 @@ func (c UserService) UpdateUser(user models.User) error {
 	return c.repository.UpdateUser(user)
 }
 
-func (c UserService) DeleteUser(ID int64) error {
+func (c UserService) DeleteUser(ID string) error {
 	return c.repository.DeleteUser(ID)
 }
