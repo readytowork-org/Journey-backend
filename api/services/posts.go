@@ -47,10 +47,15 @@ func (c PostsService) GetAllPosts(pagination utils.Pagination) ([]models.Post, i
 }
 
 // CreatorPosts -> call to get all creator posts
-func (c PostsService) CreatorPosts(cursorPagination utils.CursorPagination,userId string) ([]models.Post, error) {
-	return c.repository.CreatorPosts(cursorPagination,userId);
+func (c PostsService) CreatorPosts(cursorPagination utils.CursorPagination, userId string) ([]models.Post, error) {
+	return c.repository.CreatorPosts(cursorPagination, userId)
 }
+
 // Get User Feeds -> call to get user feeds
-func (c PostsService) GetUserFeeds(cursorPagination utils.CursorPagination,userId string) ([]models.Post, error) {
-	return c.repository.GetUserFeed(cursorPagination,userId);
+func (c PostsService) GetUserFeeds(cursorPagination utils.CursorPagination, userId string) ([]models.Post, error) {
+	return c.repository.GetUserFeed(cursorPagination, userId)
+}
+
+func (c PostsService) UploadFile(fileName string) {
+	c.repository.UploadFile(fileName)
 }
