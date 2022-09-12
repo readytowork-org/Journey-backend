@@ -23,10 +23,12 @@ type Route interface {
 func NewRoutes(
 	userRoutes UserRoutes,
 	postRoutes PostRoutes,
+	followRoutes FollowerRoutes,
 ) Routes {
 	return Routes{
 		userRoutes,
 		postRoutes,
+		followRoutes,
 	}
 }
 
