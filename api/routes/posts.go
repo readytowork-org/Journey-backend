@@ -29,6 +29,7 @@ func (i PostRoutes) Setup() {
 		Posts.GET("/creator", i.PostController.GetCreatorPosts)
 		Posts.GET("/feed", i.PostController.GetUserFeeds)
 		Posts.POST("/upload", i.PostController.UploadFile)
+		Posts.GET("/likeusers/:id", i.PostController.GetUsersOfPostLikes)
 
 	}
 }
