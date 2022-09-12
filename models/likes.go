@@ -4,7 +4,7 @@ import "time"
 
 type PostLike struct {
 	PostId    int64     `json:"post_id"`
-	UserId    int64     `json:"user_id"`
+	UserId    string    `json:"user_id"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
