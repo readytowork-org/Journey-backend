@@ -67,7 +67,7 @@ func (cc PostsController) CreatePosts(c *gin.Context) {
 // UpdatePosts -> Update Post
 func (cc PostsController) UpdatePosts(c *gin.Context) {
 	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 
 	posts := models.Post{}
 	users := models.User{}
