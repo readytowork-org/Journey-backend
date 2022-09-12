@@ -12,7 +12,7 @@ type Post struct {
 	Caption      *string        `json:"caption"`
 	UserId       string         `json:"user_id"`
 	Audience     string         `json:"audience"`
-	PostContents []PostContents `json:"posts_contents"`
+	PostContents []PostContents `json:"post_contents"`
 }
 
 func (p Post) TableName() string {

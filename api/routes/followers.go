@@ -26,7 +26,6 @@ func (i FollowerRoutes) Setup() {
 		Posts.GET("/followings/:id", i.FollowController.GetFollowings)
 		Posts.GET("/check/:id", i.FollowController.Check)
 		Posts.GET("/:id", i.FollowController.Follow)
-
 	}
 }
 

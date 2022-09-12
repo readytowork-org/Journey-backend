@@ -38,7 +38,6 @@ func (c FollowRepository) GetFollowingCount(ID string) (count int, err error) {
 
 func (c FollowRepository) GetFollowings(ID string) (follower []models.User, err error) {
 	return follower, c.db.DB.Model(&models.User{}).Select("users.*").Joins("left join followers on followers.follow_user_id = users.id ").Where("user_id = ?", ID).Group("users.id").Find(&follower).Error
-
 }
 
 func (c FollowRepository) GetFollowers(ID string) (follower []models.User, err error) {
