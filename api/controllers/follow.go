@@ -8,10 +8,8 @@ import (
 	"boilerplate-api/infrastructure"
 	"boilerplate-api/models"
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 // CommentController -> struct
@@ -36,15 +34,9 @@ func NewFollowController(
 
 func (cc FollowController) GetFollowerCount(c *gin.Context) {
 
-	id, err := strconv.Atoi(c.Param("id"))
+	id := c.Param("id")
 
-	if err != nil {
-		cc.logger.Zap.Error("Error [GetFollowerCount] [Conversion Error]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Parse  ID")
-		responses.HandleError(c, err)
-		return
-	}
-	followCount, err := cc.followService.GetFollowerCount(int64(id))
+	followCount, err := cc.followService.GetFollowerCount(id)
 
 	if err != nil {
 		cc.logger.Zap.Error("Error [GetFollowerCount] [Conversion Error]: ", err.Error())
@@ -58,15 +50,9 @@ func (cc FollowController) GetFollowerCount(c *gin.Context) {
 
 func (cc FollowController) GetFollowingCount(c *gin.Context) {
 
-	id, err := strconv.Atoi(c.Param("id"))
+	id := c.Param("id")
 
-	if err != nil {
-		cc.logger.Zap.Error("Error [GetFollowingCount] [Conversion Error]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Parse ID")
-		responses.HandleError(c, err)
-		return
-	}
-	followingCount, err := cc.followService.GetFollowingCount(int64(id))
+	followingCount, err := cc.followService.GetFollowingCount(id)
 	responses.SuccessJSON(c, http.StatusOK, followingCount)
 
 	if err != nil {
@@ -80,14 +66,10 @@ func (cc FollowController) GetFollowingCount(c *gin.Context) {
 }
 
 func (cc FollowController) GetFollowers(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		cc.logger.Zap.Error("Error [GetFollowers] [Conversion Error]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Parse ID")
-		responses.HandleError(c, err)
-		return
-	}
-	followers, err := cc.followService.GetFollowers(int64(id))
+
+	id := c.Param("id")
+
+	followers, err := cc.followService.GetFollowers(id)
 
 	if err != nil {
 		cc.logger.Zap.Error("Error getting followers", err.Error())
@@ -99,15 +81,8 @@ func (cc FollowController) GetFollowers(c *gin.Context) {
 
 }
 func (cc FollowController) GetFollowings(c *gin.Context) {
-
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		cc.logger.Zap.Error("Error [GetFollowings] [Conversion Error]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Parse ID")
-		responses.HandleError(c, err)
-		return
-	}
-	following, err := cc.followService.GetFollowings(int64(id))
+	id := c.Param("id")
+	following, err := cc.followService.GetFollowings(id)
 
 	if err != nil {
 		cc.logger.Zap.Error("Error getting followings", err.Error())
@@ -122,36 +97,43 @@ func (cc FollowController) GetFollowings(c *gin.Context) {
 func (cc FollowController) Follow(c *gin.Context) {
 
 	follow := models.Follower{}
-	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
 
-	if err := c.ShouldBindJSON(&follow); err != nil {
-		cc.logger.Zap.Error("Error [Follow] (ShouldBindJson) : ", err)
-		err := errors.BadRequest.Wrap(err, "Failed to bind user data")
-		responses.HandleError(c, err)
+	userId := c.Query(constants.UID)
+	follow.FollowUserId = c.Param("id")
+	follow.UserId = userId
+
+	if err := cc.followService.Follow(follow); err != nil {
+		if err := cc.followService.UnFollow(follow); err != nil {
+			cc.logger.Zap.Error("Error [Folloe] [db Follow]: ", err.Error())
+			err := errors.InternalError.Wrap(err, "Failed to create user")
+			responses.HandleError(c, err)
+			return
+		}
+		responses.SuccessJSON(c, http.StatusOK, "Un successfully")
 		return
 	}
 
-	if err := cc.followService.WithTrx(trx).Follow(follow); err != nil {
+	responses.SuccessJSON(c, http.StatusOK, "Foll successfully")
+
+}
+
+func (cc FollowController) Check(c *gin.Context) {
+
+	follow := models.Follower{}
+
+	userId := c.Query(constants.UID)
+	follow.FollowUserId = c.Param("id")
+	follow.UserId = userId
+
+	isFollowing, err := cc.followService.Check(follow)
+	if err != nil {
 		cc.logger.Zap.Error("Error [Folloe] [db Follow]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to create user")
 		responses.HandleError(c, err)
 		return
+
 	}
 
-	responses.SuccessJSON(c, http.StatusOK, "Following successfully")
-
-}
-func (cc FollowController) UnFollow(c *gin.Context) {
-
-	id, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		cc.logger.Zap.Error("Error [GetFollowings] [Conversion Error]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Parse ID")
-		responses.HandleError(c, err)
-		return
-	}
-	unfollowed := cc.followService.UnFollow(int64(id))
-	//todo
-	responses.SuccessJSON(c, http.StatusOK, unfollowed)
+	responses.JSON(c, http.StatusOK, isFollowing)
 
 }

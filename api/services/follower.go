@@ -26,23 +26,23 @@ func (c FollowService) WithTrx(trxHandle *gorm.DB) FollowService {
 }
 
 // CreateFollow -> call to create the Follow
-func (c FollowService) GetFollowerCount(ID int64) (int, error) {
+func (c FollowService) GetFollowerCount(ID string) (int, error) {
 
 	return c.repository.GetFollowerCount(ID)
 }
 
 // GetAllFollow -> call to get all the Follow
-func (c FollowService) GetFollowingCount(ID int64) (int, error) {
+func (c FollowService) GetFollowingCount(ID string) (int, error) {
 	return c.repository.GetFollowingCount(ID)
 
 }
 
-func (c FollowService) GetFollowers(ID int64) ([]models.User, error) {
+func (c FollowService) GetFollowers(ID string) ([]models.User, error) {
 	return c.repository.GetFollowers(ID)
 }
 
 //GetAllFollow -> call to get all the Follow
-func (c FollowService) GetFollowings(ID int64) ([]models.User, error) {
+func (c FollowService) GetFollowings(ID string) ([]models.User, error) {
 
 	return c.repository.GetFollowings(ID)
 }
@@ -51,6 +51,10 @@ func (c FollowService) Follow(follow models.Follower) error {
 	return c.repository.Follow(follow)
 }
 
-func (c FollowService) UnFollow(ID int64) error {
-	return c.repository.UnFollow(ID)
+func (c FollowService) UnFollow(follow models.Follower) error {
+	return c.repository.UnFollow(follow)
+}
+
+func (c FollowService) Check(follow models.Follower) (isFolloing models.Follower, err error) {
+	return c.repository.Check(follow)
 }
