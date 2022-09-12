@@ -25,7 +25,7 @@ func (i FollowerRoutes) Setup() {
 		Posts.GET("/followers/:id", i.FollowController.GetFollowers)
 		Posts.GET("/followings/:id", i.FollowController.GetFollowings)
 		Posts.POST("/", i.trxMiddleware.DBTransactionHandle(), i.FollowController.Follow)
-		Posts.DELETE("/:id", i.FollowController.UnFollow)
+		// Posts.DELETE("/:id", i.FollowController.UnFollow)
 
 	}
 }
