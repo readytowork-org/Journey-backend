@@ -34,16 +34,16 @@ func (c LikesRepository) CreateLikes(likes models.PostLike) error {
 }
 
 func (c LikesRepository) GetUserPostLikes(likes models.PostLike) (postLike models.UserPostLike, err error) {
-	err = c.db.DB.Select(`post_id,
+	err = c.db.DB.Select(`id as post_id,
 	(SELECT COUNT(post_id)
 	 FROM post_likes
-			  JOIN posts p ON p.id = post_likes.post_id)                        like_count,
-	IF((SELECT c.user_id FROM post_likes c WHERE user_id = ?) = ?, TRUE, FALSE) has_liked`, likes.UserId, likes.UserId).Model(&models.PostLike{}).Where("post_id = ?", likes.PostId).Error
+			  WHERE posts.id = post_likes.post_id)                        like_count,
+	IF((SELECT c.user_id FROM post_likes c WHERE user_id = ?) = ?, TRUE, FALSE) has_liked`, likes.UserId, likes.UserId).Model(&models.Post{}).Where("posts.id = ?", likes.PostId).Find(&postLike).Error
 	return postLike, err
 }
 
 func (c LikesRepository) DeleteLikes(like models.PostLike) error {
-	return c.db.DB.Delete(&like).Error
+	return c.db.DB.Where("post_id = ?", like.PostId).Where("user_id = ?", like.UserId).Delete(&like).Error
 }
 
 func (c LikesRepository) GetOneLike(postId models.PostLike) (userId models.PostLike, err error) {
