@@ -145,7 +145,7 @@ func (cc PostsController) PostLikes(c *gin.Context) {
 
 // DeletePosts -> Delete Posts
 func (cc PostsController) DeletePosts(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	users := models.User{}
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
