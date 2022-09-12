@@ -29,11 +29,11 @@ func (c FollowRepository) WithTrx(trxHandle *gorm.DB) FollowRepository {
 }
 
 func (c FollowRepository) GetFollowerCount(ID int64) (count int, err error) {
-	return count, c.db.DB.Select("COUNT(user_id)").Where("follow_user_id = ?", ID).Find(&count).Error
+	return count, c.db.DB.Model(&models.Follower{}).Select("COUNT(user_id)").Where("follow_user_id = ?", ID).Find(&count).Error
 }
 
 func (c FollowRepository) GetFollowingCount(ID int64) (count int, err error) {
-	return count, c.db.DB.Select("COUNT(follow_user_id)").Where("user_id = ?", ID).Find(&count).Error
+	return count, c.db.DB.Model(&models.Follower{}).Select("COUNT(follow_user_id)").Where("user_id = ?", ID).Find(&count).Error
 }
 
 func (c FollowRepository) GetFollowings(ID int64) (follower []models.User, err error) {
