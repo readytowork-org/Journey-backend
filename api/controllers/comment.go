@@ -61,6 +61,7 @@ func (cc CommentController) CreateComment(c *gin.Context) {
 func (cc CommentController) UpdateComment(c *gin.Context) {
 	comment := models.Comment{}
 	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 
 	if err := c.ShouldBindJSON(&comment); err != nil {
 		cc.logger.Zap.Error("Error [UpdateComment] (ShouldBindJson) : ", err)
@@ -68,6 +69,8 @@ func (cc CommentController) UpdateComment(c *gin.Context) {
 		responses.HandleError(c, err)
 		return
 	}
+
+	comment.ID = id
 
 	if err := cc.commentService.WithTrx(trx).UpdateComment(comment); err != nil {
 		cc.logger.Zap.Error("Error [UpdateComment] [db UpdateComment]: ", err.Error())
@@ -81,8 +84,7 @@ func (cc CommentController) UpdateComment(c *gin.Context) {
 
 // DeleteComment -> Delete Comment
 func (cc CommentController) DeleteComment(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
-
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeleteComment] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Comment ID")
