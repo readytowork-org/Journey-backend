@@ -54,7 +54,7 @@ func (c PostsRepository) DeletePosts(ID int64) error {
 }
 
 // GetOneUser -> gets one post of postId
-func (c PostsRepository) GetOnePost(postId int64, userId int64) (Posts models.UserPost, err error) {
+func (c PostsRepository) GetOnePost(postId int64, userId string) (Posts models.UserPost, err error) {
 	return Posts, c.db.DB.
 		Model(&models.Post{}).
 		Select(`posts.*,(SELECT COUNT(post_id)
