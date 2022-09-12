@@ -7,7 +7,6 @@ import (
 	"boilerplate-api/errors"
 	"boilerplate-api/infrastructure"
 	"boilerplate-api/models"
-	"boilerplate-api/utils"
 	"net/http"
 	"strconv"
 
@@ -101,21 +100,6 @@ func (cc CommentController) DeleteComment(c *gin.Context) {
 
 	responses.SuccessJSON(c, http.StatusOK, "Comment Deleted Sucessfully")
 
-}
-
-// GetAllComment -> Get All Comment
-func (cc CommentController) GetAllComments(c *gin.Context) {
-	pagination := utils.BuildPagination(c)
-	comments, count, err := cc.commentService.GetAllComments(pagination)
-
-	if err != nil {
-		cc.logger.Zap.Error("Error finding Comment records", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to get Comments data")
-		responses.HandleError(c, err)
-		return
-	}
-
-	responses.JSONCount(c, http.StatusOK, comments, count)
 }
 
 func (cc CommentController) CreateCommentLike(c *gin.Context) {
