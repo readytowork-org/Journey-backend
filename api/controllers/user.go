@@ -127,3 +127,19 @@ func (cc UserController) GetAllUsers(c *gin.Context) {
 
 	responses.JSONCount(c, http.StatusOK, users, count)
 }
+
+func (cc UserController) SearchUser(c *gin.Context) {
+	queryString := c.Query("queryString")
+
+	users, err := cc.userService.SearchUser(queryString)
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeleteUser] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse user ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	responses.SuccessJSON(c, http.StatusOK, users)
+
+}

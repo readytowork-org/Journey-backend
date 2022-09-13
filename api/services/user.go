@@ -49,3 +49,7 @@ func (c UserService) UpdateUser(user models.User) error {
 func (c UserService) DeleteUser(ID string) error {
 	return c.repository.DeleteUser(ID)
 }
+
+func (c UserService) SearchUser(queryString string) (users []models.User, err error) {
+	return c.repository.SearchUser(queryString)
+}
