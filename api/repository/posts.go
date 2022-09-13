@@ -4,8 +4,12 @@ import (
 	"boilerplate-api/infrastructure"
 	"boilerplate-api/models"
 	"boilerplate-api/utils"
+	"context"
+	"log"
 	"time"
 
+	firebase "firebase.google.com/go"
+	"google.golang.org/api/option"
 	"gorm.io/gorm"
 )
 
@@ -84,34 +88,57 @@ func (c PostsRepository) GetAllPosts(pagination utils.Pagination) ([]models.Post
 		Count(&totalRows).Error
 	return Posts, totalRows, err
 }
+
 //GetCreatorPosts-> Get Creator Posts
 func (c PostsRepository) CreatorPosts(cursorPagination utils.CursorPagination, userId string) (Posts []models.Post, err error) {
-	
-	parsedCursor, _ := time.Parse(time.RFC3339, cursorPagination.Cursor)
-	queryBuilder :=c.db.DB.Model(&models.Post{}).Select(`posts.*`).Where("user_id= ? ",userId).Limit(cursorPagination.PageSize)
-	if cursorPagination.Cursor!="" {
-		queryBuilder=queryBuilder.Where("created_at < ?",parsedCursor)
-	}
-   
-	return Posts ,queryBuilder.Order("created_at desc").Find(&Posts).
-	Error 
-	
-}
 
+	parsedCursor, _ := time.Parse(time.RFC3339, cursorPagination.Cursor)
+	queryBuilder := c.db.DB.Model(&models.Post{}).Select(`posts.*`).Where("user_id= ? ", userId).Limit(cursorPagination.PageSize)
+	if cursorPagination.Cursor != "" {
+		queryBuilder = queryBuilder.Where("created_at < ?", parsedCursor)
+	}
+
+	return Posts, queryBuilder.Order("created_at desc").Find(&Posts).
+		Error
+
+}
 
 //GetUserFeed => Get Users Feeds
 
-func(c PostsRepository) GetUserFeed(cursorPagination utils.CursorPagination,userId string) (Posts []models.Post,err error){
+func (c PostsRepository) GetUserFeed(cursorPagination utils.CursorPagination, userId string) (Posts []models.Post, err error) {
 	parsedCursor, _ := time.Parse(time.RFC3339, cursorPagination.Cursor)
-	queryBuilder :=c.db.DB.Model(&models.Post{}).Select(`posts.*`).Joins(`join followers on followers.follow_user_id=posts.user_id`).Where(`posts.audience != 'private' and followers.user_id= ?`,userId ).
-	Limit(cursorPagination.PageSize)
-	if cursorPagination.Cursor!="" {
-		queryBuilder=queryBuilder.Where("created_at < ?",parsedCursor)
+	queryBuilder := c.db.DB.Model(&models.Post{}).Select(`posts.*`).Joins(`join followers on followers.follow_user_id=posts.user_id`).Where(`posts.audience != 'private' and followers.user_id= ?`, userId).
+		Limit(cursorPagination.PageSize)
+	if cursorPagination.Cursor != "" {
+		queryBuilder = queryBuilder.Where("created_at < ?", parsedCursor)
 	}
-   
-	return Posts ,queryBuilder.Order("created_at desc").Find(&Posts).
-	Error 
+
+	return Posts, queryBuilder.Order("created_at desc").Find(&Posts).
+		Error
 }
 
+func (c PostsRepository) UploadFile(fileName string) {
+	ctx := context.Background()
+	config := &firebase.Config{
+		StorageBucket: "flutterproject-31436.appspot.com",
+	}
+	sa := option.WithCredentialsFile("./serviceAccountKey.json")
 
+	app, err := firebase.NewApp(ctx, config, sa)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	client, err := app.Storage(ctx)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
+	bucket, err := client.DefaultBucket()
+	if err != nil {
+		log.Fatalln(err)
+	}
+	wc := bucket.Object(fileName).NewWriter(ctx)
+	if err := wc.Close(); err != nil {
+		log.Println(err)
+	}
+}
