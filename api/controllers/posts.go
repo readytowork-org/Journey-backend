@@ -243,6 +243,7 @@ func (cc PostsController) GetOnePost(c *gin.Context) {
 	responses.JSON(c, http.StatusOK, posts)
 }
 
+
 func (cc PostsController) GetUsersOfPostLikes(c *gin.Context) {
 
 	// userId := c.MustGet(constants.UID).(int64)
