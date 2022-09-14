@@ -41,8 +41,8 @@ func (c CommentService) UpdateComment(comment models.Comment) error {
 	return c.repository.UpdateComment(comment)
 }
 
-func (c CommentService) DeleteComment(ID int64) error {
-	return c.repository.DeleteComment(ID)
+func (c CommentService) DeleteComment(comment models.Comment) error {
+	return c.repository.DeleteComment(comment)
 }
 
 func (c CommentService) CreateCommentLike(commentLike models.CommentLikes) error {
@@ -53,7 +53,11 @@ func (c CommentService) DeleteCommentLike(commentLike models.CommentLikes) error
 	return c.repository.DeleteCommentLike(commentLike)
 }
 
-func (c CommentService) GetOneComment(id int64, userId int64) (comment models.UserComment, err error) {
+func (c CommentService) GetUserPostComment(pagination utils.CursorPagination, postId int64) ([]models.Comment, int64, error) {
+	return c.repository.GetUserPostComment(pagination, postId)
+}
+
+func (c CommentService) GetOneComment(id int64, userId string) (comment models.UserComment, err error) {
 	return c.repository.GetOneComment(id, userId)
 }
 
