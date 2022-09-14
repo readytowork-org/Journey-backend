@@ -37,6 +37,10 @@ func (c PostsService) GetOnePost(postId int64, userId string) (Posts models.User
 	return c.repository.GetOnePost(postId, userId)
 }
 
+func (c PostsService) GetPost(postId int64) (Posts models.Post, err error) {
+	return c.repository.GetPost(postId)
+}
+
 func (c PostsService) DeletePosts(ID int64) error {
 	return c.repository.DeletePosts(ID)
 }
@@ -47,10 +51,11 @@ func (c PostsService) GetAllPosts(pagination utils.Pagination) ([]models.Post, i
 }
 
 // CreatorPosts -> call to get all creator posts
-func (c PostsService) CreatorPosts(cursorPagination utils.CursorPagination,userId string) ([]models.Post, error) {
-	return c.repository.CreatorPosts(cursorPagination,userId);
+func (c PostsService) CreatorPosts(cursorPagination utils.CursorPagination, userId string) ([]models.Post, error) {
+	return c.repository.CreatorPosts(cursorPagination, userId)
 }
+
 // Get User Feeds -> call to get user feeds
-func (c PostsService) GetUserFeeds(cursorPagination utils.CursorPagination,userId string) ([]models.Post, error) {
-	return c.repository.GetUserFeed(cursorPagination,userId);
+func (c PostsService) GetUserFeeds(cursorPagination utils.CursorPagination, userId string) ([]models.Post, error) {
+	return c.repository.GetUserFeed(cursorPagination, userId)
 }
