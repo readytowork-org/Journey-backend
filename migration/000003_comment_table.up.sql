@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS comments
     likes        INT          NULL DEFAULT 0,
     parent_id_fk INT UNSIGNED NULL,
     user_id      VARCHAR(50) NOT NULL,
-    create_at    DATETIME     NOT NULL,
+    created_at    DATETIME     NOT NULL,
     updated_at   DATETIME     NULL,
     deleted_at   DATETIME     NULL,
     PRIMARY KEY (id),
