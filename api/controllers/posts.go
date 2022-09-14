@@ -8,7 +8,6 @@ import (
 	"boilerplate-api/infrastructure"
 	"boilerplate-api/models"
 	"boilerplate-api/utils"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -21,6 +20,7 @@ type PostsController struct {
 	PostsService        services.PostsService
 	PostContentsService services.PostContentsService
 	LikesService        services.LikesService
+	CommentService      services.CommentService
 	env                 infrastructure.Env
 }
 
@@ -30,6 +30,7 @@ func NewPostsController(
 	postsService services.PostsService,
 	PostContentsService services.PostContentsService,
 	LikesService services.LikesService,
+	CommentService services.CommentService,
 	env infrastructure.Env,
 
 ) PostsController {
@@ -38,6 +39,7 @@ func NewPostsController(
 		PostsService:        postsService,
 		PostContentsService: PostContentsService,
 		LikesService:        LikesService,
+		CommentService:      CommentService,
 		env:                 env,
 	}
 }
@@ -67,12 +69,9 @@ func (cc PostsController) CreatePosts(c *gin.Context) {
 // UpdatePosts -> Update Post
 func (cc PostsController) UpdatePosts(c *gin.Context) {
 	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
-	id, err := strconv.Atoi(c.Param("id"))
-
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	userId := c.Query(constants.UID)
 	posts := models.Post{}
-	users := models.User{}
-
-	// id, _ := strconv.ParseInt(users.ID, 10, 64)
 
 	if err := c.ShouldBindJSON(&posts); err != nil {
 		cc.logger.Zap.Error("Error [UpdatePosts] (ShouldBindJson) : ", err)
@@ -81,7 +80,7 @@ func (cc PostsController) UpdatePosts(c *gin.Context) {
 		return
 	}
 
-	_, err = cc.PostsService.GetOnePost(int64(id), users.ID)
+	_, err = cc.PostsService.GetOnePost(int64(id), userId)
 
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeleteUser] [Conversion Error]: ", err.Error())
@@ -143,10 +142,41 @@ func (cc PostsController) PostLikes(c *gin.Context) {
 
 }
 
+func (cc PostsController) GetComment(c *gin.Context) {
+	pagination := utils.BuildCursorPagination(c)
+	id, err := strconv.ParseInt(c.Param("post_id"), 10, 64)
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	posts, err := cc.PostsService.GetPost(id)
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	userPostComment, count, err := cc.CommentService.GetUserPostComment(pagination, posts.ID)
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	responses.JSONCount(c, http.StatusOK, userPostComment, count)
+}
+
 // DeletePosts -> Delete Posts
 func (cc PostsController) DeletePosts(c *gin.Context) {
-	id, err := strconv.Atoi(c.Param("id"))
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	users := models.User{}
+	
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Post ID")
