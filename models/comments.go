@@ -4,7 +4,6 @@ type Comment struct {
 	Base
 	Comment    string `json:"comment"`
 	PostId     int64  `json:"post_id"`
-	Likes      int    `json:"likes"`
 	ParentIdFk *int64 `json:"parent_id_fk"`
 	UserId     string `json:"user_id"`
 }
