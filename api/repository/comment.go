@@ -98,10 +98,10 @@ func (c CommentRepository) DeleteCommentLike(commentLikes models.CommentLikes) e
 	return c.db.DB.Delete(&commentLikes).Error
 }
 
-func (c CommentRepository) GetOneComment(id int64, userId string) (comment models.UserComment, err error) {
+func (c CommentRepository) GetOneUserComment(id int64, userId string) (comment models.UserComment, err error) {
 	return comment, c.db.DB.
-	Model(&models.Comment{}).
-	Select(`comments.*,(SELECT COUNT(comment_id)
+		Model(&models.Comment{}).
+		Select(`comments.*,(SELECT COUNT(comment_id)
 	FROM comment_likes JOIN comments p ON p.id = comment_likes.comment_id) like_count,
    IF((SELECT c.user_id FROM comment_likes c WHERE user_id = ?) = ?, TRUE, FALSE) has_liked`, userId, userId).
 		Where("id = ? ", id).Find(&comment).Error
