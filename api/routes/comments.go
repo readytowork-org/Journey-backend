@@ -20,6 +20,7 @@ func (i CommentRoutes) Setup() {
 	i.logger.Zap.Info(" Setting up Comment routes")
 	Posts := i.router.Gin.Group("/comment")
 	{
+		Posts.GET("/:id", i.CommentController.GetOneUserComment)
 		Posts.POST("/:post_id", i.trxMiddleware.DBTransactionHandle(), i.CommentController.CreateComment)
 		Posts.PUT("/:id", i.trxMiddleware.DBTransactionHandle(), i.CommentController.UpdateComment)
 		Posts.DELETE("/:id", i.CommentController.DeleteComment)
