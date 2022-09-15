@@ -32,11 +32,6 @@ func (c CommentService) CreateComment(comment models.Comment) error {
 	return err
 }
 
-// GetAllComment -> call to get all the Comment
-func (c CommentService) GetAllComments(pagination utils.Pagination) ([]models.Comment, int64, error) {
-	return c.repository.GetAllComments(pagination)
-}
-
 func (c CommentService) UpdateComment(comment models.Comment) error {
 	return c.repository.UpdateComment(comment)
 }
@@ -57,8 +52,12 @@ func (c CommentService) GetUserPostComment(pagination utils.CursorPagination, po
 	return c.repository.GetUserPostComment(pagination, postId)
 }
 
-func (c CommentService) GetOneComment(id int64, userId string) (comment models.UserComment, err error) {
-	return c.repository.GetOneComment(id, userId)
+func (c CommentService) GetOneUserComment(id int64, userId string) (comment models.UserComment, err error) {
+	return c.repository.GetOneUserComment(id, userId)
+}
+
+func (c CommentService) GetOneComment(id int64) (comment models.Comment, err error) {
+	return c.repository.GetOneComment(id)
 }
 
 func (c CommentService) GetUserCommentLike(likes models.CommentLikes) (commentLike models.UserCommentLike, err error) {
