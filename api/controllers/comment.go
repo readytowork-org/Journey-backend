@@ -148,35 +148,35 @@ func (cc CommentController) UpdateComment(c *gin.Context) {
 
 // DeleteComment -> Delete Comment
 func (cc CommentController) DeleteComment(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	userId := c.Query(constants.UID)
+
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeleteComment] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Comment ID")
 		responses.HandleError(c, err)
 		return
 	}
-	posts, err := cc.postService.GetOnePost(int64(id), userId)
-	
+
+	comment, err := cc.commentService.GetOneComment(id)
 	if err != nil {
-		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		cc.logger.Zap.Error("Error [DeletePosts] [GetOneComment]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to get comment")
 		responses.HandleError(c, err)
 		return
 	}
-	deleteComment := models.Comment{PostId: posts.ID, UserId: userId}
 
-	err = cc.commentService.DeleteComment(deleteComment)
-
-	if err != nil {
-		cc.logger.Zap.Error("Error [DeleteComment] [Conversion Error]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Parse Comment ID")
+	deleteComment := models.Comment{UserId: userId, Base: models.Base{
+		ID: comment.ID,
+	}}
+	if err = cc.commentService.DeleteComment(deleteComment); err != nil {
+		cc.logger.Zap.Error("Error [DeleteComment] [DeleteComment]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Delete Comment")
 		responses.HandleError(c, err)
-
+		return
 	}
 
-	responses.SuccessJSON(c, http.StatusOK, "Comment Deleted Sucessfully")
-
+	responses.SuccessJSON(c, http.StatusOK, "Comment Deleted Successfully")
 }
 
 func (cc CommentController) CreateCommentLike(c *gin.Context) {
