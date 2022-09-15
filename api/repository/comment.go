@@ -90,6 +90,10 @@ func (c CommentRepository) CreateCommentLike(commentLikes models.CommentLikes) e
 	return c.db.DB.Create(&commentLikes).Error
 }
 
+func (c CommentRepository) GetOneComment(id int64) (comment models.Comment, err error) {
+	return comment, c.db.DB.Model(&models.Comment{}).Where("id = ?", id).First(&comment).Error
+}
+
 func (c CommentRepository) DeleteCommentLike(commentLikes models.CommentLikes) error {
 	return c.db.DB.Delete(&commentLikes).Error
 }
