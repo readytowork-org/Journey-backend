@@ -32,7 +32,6 @@ func NewPostsController(
 	LikesService services.LikesService,
 	CommentService services.CommentService,
 	env infrastructure.Env,
-
 ) PostsController {
 	return PostsController{
 		logger:              logger,
@@ -56,6 +55,7 @@ func (cc PostsController) CreatePosts(c *gin.Context) {
 		return
 	}
 
+	posts.UserId = userId
 	if err := cc.PostsService.WithTrx(trx).CreatePosts(posts); err != nil {
 		cc.logger.Zap.Error("Error [CreatePosts] [db CreatePosts]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to create Post")
@@ -102,7 +102,6 @@ func (cc PostsController) UpdatePosts(c *gin.Context) {
 func (cc PostsController) PostLikes(c *gin.Context) {
 	userId := c.Query(constants.UID)
 	id, err := strconv.ParseInt(c.Param("postId"), 10, 64)
-
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
@@ -110,8 +109,7 @@ func (cc PostsController) PostLikes(c *gin.Context) {
 		return
 	}
 
-	posts, err := cc.PostsService.GetOnePost(int64(id), userId)
-
+	posts, err := cc.PostsService.GetOnePost(id, userId)
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
@@ -139,7 +137,6 @@ func (cc PostsController) PostLikes(c *gin.Context) {
 	}
 
 	responses.JSON(c, http.StatusOK, userPostLike)
-
 }
 
 func (cc PostsController) GetComment(c *gin.Context) {
@@ -176,7 +173,7 @@ func (cc PostsController) GetComment(c *gin.Context) {
 func (cc PostsController) DeletePosts(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	users := models.User{}
-	
+
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Post ID")
@@ -274,21 +271,16 @@ func (cc PostsController) GetOnePost(c *gin.Context) {
 	responses.JSON(c, http.StatusOK, posts)
 }
 
-
 func (cc PostsController) GetUsersOfPostLikes(c *gin.Context) {
-
-	// userId := c.MustGet(constants.UID).(int64)
-
-	id, err := strconv.Atoi(c.Param("id"))
-
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
 		responses.HandleError(c, err)
 		return
 	}
-	users, err := cc.LikesService.GetUsersOfPostLikes(int64(id))
 
+	users, err := cc.LikesService.GetUsersOfPostLikes(id)
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
