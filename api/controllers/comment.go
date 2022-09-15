@@ -103,22 +103,35 @@ func (cc CommentController) CreateComment(c *gin.Context) {
 // UpdateComment -> Update Comment
 func (cc CommentController) UpdateComment(c *gin.Context) {
 	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
-	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-	userId := c.Query(constants.UID)
-	comment := models.Comment{}
+	userId := c.MustGet(constants.UID).(string)
 
-	if err := c.ShouldBindJSON(&comment); err != nil {
-		cc.logger.Zap.Error("Error [UpdateComment] (ShouldBindJson) : ", err)
-		err := errors.BadRequest.Wrap(err, "Failed to bind Comment data")
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		cc.logger.Zap.Error("Error [UpdateComment] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse user ID")
 		responses.HandleError(c, err)
 		return
 	}
 
-	_, err = cc.commentService.GetOneComment(int64(id), userId)
-
+	comment, err := cc.commentService.WithTrx(trx).GetOneComment(id)
 	if err != nil {
-		cc.logger.Zap.Error("Error [DeleteUser] [Conversion Error]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Parse user ID")
+		cc.logger.Zap.Error("Error [UpdateComment] [GetOneComment]: ", err.Error())
+		err := errors.NotFound.Wrap(err, "Failed to get comment")
+		responses.HandleError(c, err)
+		return
+	}
+
+	if comment.UserId != userId {
+		cc.logger.Zap.Error("Error [UpdateComment] [User check]: ", err.Error())
+		err := errors.Forbidden.Wrap(err, "Cannot edit this comment!")
+		responses.HandleError(c, err)
+		return
+	}
+
+	updateComment := models.Comment{}
+	if err := c.ShouldBindJSON(&updateComment); err != nil {
+		cc.logger.Zap.Error("Error [UpdateComment] (ShouldBindJson) : ", err)
+		err := errors.BadRequest.Wrap(err, "Failed to bind Comment data")
 		responses.HandleError(c, err)
 		return
 	}
