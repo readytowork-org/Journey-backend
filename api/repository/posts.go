@@ -69,6 +69,14 @@ func (c PostsRepository) GetOnePost(postId int64, userId string) (Posts models.U
 		Error
 }
 
+func (c PostsRepository) GetPost(postId int64) (Posts models.Post, err error) {
+	return Posts, c.db.DB.
+		Model(&models.Post{}).
+		Where("id = ?", postId).
+		First(&Posts).
+		Error
+}
+
 // GetAllPosts -> Get All Posts
 func (c PostsRepository) GetAllPosts(pagination utils.Pagination) ([]models.Post, int64, error) {
 	var Posts []models.Post
@@ -89,7 +97,7 @@ func (c PostsRepository) GetAllPosts(pagination utils.Pagination) ([]models.Post
 	return Posts, totalRows, err
 }
 
-//GetCreatorPosts-> Get Creator Posts
+// GetCreatorPosts-> Get Creator Posts
 func (c PostsRepository) CreatorPosts(cursorPagination utils.CursorPagination, userId string) (Posts []models.Post, err error) {
 
 	parsedCursor, _ := time.Parse(time.RFC3339, cursorPagination.Cursor)

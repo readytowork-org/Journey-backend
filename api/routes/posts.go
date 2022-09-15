@@ -24,12 +24,13 @@ func (i PostRoutes) Setup() {
 		Posts.POST("", i.trxMiddleware.DBTransactionHandle(), i.PostController.CreatePosts)
 		Posts.PUT("/:id", i.trxMiddleware.DBTransactionHandle(), i.PostController.UpdatePosts)
 		Posts.DELETE("/:id", i.PostController.DeletePosts)
-		Posts.POST("/like/:postId", i.PostController.PostLikes)
 		Posts.GET("/:id", i.PostController.GetOnePost)
 		Posts.GET("/creator", i.PostController.GetCreatorPosts)
 		Posts.GET("/feed", i.PostController.GetUserFeeds)
+		Posts.GET("/like/:postId", i.PostController.PostLikes)
+		Posts.GET("/comment/:post_id", i.PostController.GetComment)
+		Posts.GET("/like-users/:id", i.PostController.GetUsersOfPostLikes)
 		Posts.POST("/upload", i.PostController.UploadFile)
-		Posts.GET("/likeusers/:id", i.PostController.GetUsersOfPostLikes)
 	}
 }
 

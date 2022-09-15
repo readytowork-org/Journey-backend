@@ -18,6 +18,7 @@ import (
 type CommentController struct {
 	logger         infrastructure.Logger
 	commentService services.CommentService
+	postService    services.PostsService
 	env            infrastructure.Env
 }
 
@@ -25,19 +26,61 @@ type CommentController struct {
 func NewCommentController(
 	logger infrastructure.Logger,
 	commentService services.CommentService,
+	postService services.PostsService,
 	env infrastructure.Env,
 ) CommentController {
 	return CommentController{
 		logger:         logger,
 		commentService: commentService,
-		env:            env,
+		postService:    postService,
+
+		env: env,
 	}
+}
+
+func (cc CommentController) GetOneUserComment(c *gin.Context) {
+	userId := c.MustGet(constants.UID).(string)
+
+	commentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		cc.logger.Zap.Error("Error [GetOneUserComment] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+	}
+
+	comment, err := cc.commentService.GetOneUserComment(commentId, userId)
+	if err != nil {
+		cc.logger.Zap.Error("Error [GetOneUserComment] [GetOneUserComment]: ", err.Error())
+		err := errors.NotFound.Wrap(err, "Cannot find comment")
+		responses.HandleError(c, err)
+		return
+	}
+
+	responses.JSON(c, http.StatusOK, comment)
 }
 
 // CreateFollow -> Create Follow
 func (cc CommentController) CreateComment(c *gin.Context) {
 	comment := models.Comment{}
+	userId := c.Query(constants.UID)
 	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
+
+	id, err := strconv.ParseInt(c.Param("post_id"), 10, 64)
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	posts, err := cc.postService.GetPost(id)
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
 
 	if err := c.ShouldBindJSON(&comment); err != nil {
 		cc.logger.Zap.Error("Error [CreateUser] (ShouldBindJson) : ", err)
@@ -45,7 +88,8 @@ func (cc CommentController) CreateComment(c *gin.Context) {
 		responses.HandleError(c, err)
 		return
 	}
-
+	comment.PostId = posts.ID
+	comment.UserId = userId
 	if err := cc.commentService.WithTrx(trx).CreateComment(comment); err != nil {
 		cc.logger.Zap.Error("Error [CreateComment] [db CreateComment]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to create Comment")
@@ -58,18 +102,39 @@ func (cc CommentController) CreateComment(c *gin.Context) {
 
 // UpdateComment -> Update Comment
 func (cc CommentController) UpdateComment(c *gin.Context) {
-	comment := models.Comment{}
 	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
-	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	userId := c.MustGet(constants.UID).(string)
 
-	if err := c.ShouldBindJSON(&comment); err != nil {
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		cc.logger.Zap.Error("Error [UpdateComment] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse user ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	comment, err := cc.commentService.WithTrx(trx).GetOneComment(id)
+	if err != nil {
+		cc.logger.Zap.Error("Error [UpdateComment] [GetOneComment]: ", err.Error())
+		err := errors.NotFound.Wrap(err, "Failed to get comment")
+		responses.HandleError(c, err)
+		return
+	}
+
+	if comment.UserId != userId {
+		cc.logger.Zap.Error("Error [UpdateComment] [User check]: ", err.Error())
+		err := errors.Forbidden.Wrap(err, "Cannot edit this comment!")
+		responses.HandleError(c, err)
+		return
+	}
+
+	updateComment := models.Comment{}
+	if err := c.ShouldBindJSON(&updateComment); err != nil {
 		cc.logger.Zap.Error("Error [UpdateComment] (ShouldBindJson) : ", err)
 		err := errors.BadRequest.Wrap(err, "Failed to bind Comment data")
 		responses.HandleError(c, err)
 		return
 	}
-
-	comment.ID = id
 
 	if err := cc.commentService.WithTrx(trx).UpdateComment(comment); err != nil {
 		cc.logger.Zap.Error("Error [UpdateComment] [db UpdateComment]: ", err.Error())
@@ -78,11 +143,13 @@ func (cc CommentController) UpdateComment(c *gin.Context) {
 		return
 	}
 
-	responses.SuccessJSON(c, http.StatusOK, "Comment Updated Sucessfully")
+	responses.SuccessJSON(c, http.StatusOK, "Comment Updated !!!")
 }
 
 // DeleteComment -> Delete Comment
 func (cc CommentController) DeleteComment(c *gin.Context) {
+	userId := c.Query(constants.UID)
+
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeleteComment] [Conversion Error]: ", err.Error())
@@ -91,22 +158,31 @@ func (cc CommentController) DeleteComment(c *gin.Context) {
 		return
 	}
 
-	err = cc.commentService.DeleteComment(int64(id))
-
+	comment, err := cc.commentService.GetOneComment(id)
 	if err != nil {
-		cc.logger.Zap.Error("Error [DeleteComment] [Conversion Error]: ", err.Error())
-		err := errors.InternalError.Wrap(err, "Failed to Parse Comment ID")
+		cc.logger.Zap.Error("Error [DeletePosts] [GetOneComment]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to get comment")
 		responses.HandleError(c, err)
 		return
 	}
 
-	responses.SuccessJSON(c, http.StatusOK, "Comment Deleted Sucessfully")
+	deleteComment := models.Comment{UserId: userId, Base: models.Base{
+		ID: comment.ID,
+	}}
+	if err = cc.commentService.DeleteComment(deleteComment); err != nil {
+		cc.logger.Zap.Error("Error [DeleteComment] [DeleteComment]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Delete Comment")
+		responses.HandleError(c, err)
+		return
+	}
 
+	responses.SuccessJSON(c, http.StatusOK, "Comment Deleted Successfully")
 }
 
 func (cc CommentController) CreateCommentLike(c *gin.Context) {
-	userId := c.MustGet(constants.UID).(int64)
-	id, err := strconv.Atoi(c.Param("id"))
+	userId := c.MustGet(constants.UID).(string)
+
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
@@ -114,17 +190,16 @@ func (cc CommentController) CreateCommentLike(c *gin.Context) {
 		return
 	}
 
-	cc.commentService.GetOneComment(int64(id), userId)
-
+	comment, err := cc.commentService.GetOneUserComment(id, userId)
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
 		responses.HandleError(c, err)
 		return
 	}
-	commentLike := models.CommentLikes{UserId: userId, CommentId: int64(id)}
+
+	commentLike := models.CommentLikes{UserId: userId, CommentId: comment.ID}
 	err = cc.commentService.CreateCommentLike(commentLike)
-
 	if err != nil {
 		err = cc.commentService.DeleteCommentLike(commentLike)
 		if err != nil {
@@ -144,5 +219,3 @@ func (cc CommentController) CreateCommentLike(c *gin.Context) {
 	}
 	responses.SuccessJSON(c, http.StatusOK, userCommentLike)
 }
-
-// func (cc CommentController) DeleteCommentLike(c *gin.Context) {}

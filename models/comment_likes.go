@@ -1,8 +1,8 @@
 package models
 
 type CommentLikes struct {
-	UserId    int64 `json:"user_id"`
-	CommentId int64 `json:"comment_id"`
+	UserId    string `json:"user_id"`
+	CommentId int64  `json:"comment_id"`
 }
 
 func (m CommentLikes) TableName() string {

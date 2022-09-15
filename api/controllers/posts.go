@@ -20,6 +20,8 @@ type PostsController struct {
 	PostsService        services.PostsService
 	PostContentsService services.PostContentsService
 	LikesService        services.LikesService
+	CommentService      services.CommentService
+	UserService         services.UserService
 	env                 infrastructure.Env
 }
 
@@ -29,14 +31,17 @@ func NewPostsController(
 	postsService services.PostsService,
 	PostContentsService services.PostContentsService,
 	LikesService services.LikesService,
+	CommentService services.CommentService,
+	UserService services.UserService,
 	env infrastructure.Env,
-
 ) PostsController {
 	return PostsController{
 		logger:              logger,
 		PostsService:        postsService,
 		PostContentsService: PostContentsService,
 		LikesService:        LikesService,
+		CommentService:      CommentService,
+		UserService:         UserService,
 		env:                 env,
 	}
 }
@@ -44,6 +49,22 @@ func NewPostsController(
 // CreatePosts -> Create Post
 func (cc PostsController) CreatePosts(c *gin.Context) {
 	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
+	//userId := c.MustGet(constants.UID).(string)
+	userId := c.Query(constants.UID)
+
+	user, err := cc.UserService.GetOneUser(userId)
+	if err != nil {
+		cc.logger.Zap.Error("Error [CreatePosts] [db GetOneUser]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to get User")
+		responses.HandleError(c, err)
+		return
+	}
+
+	if !user.IsCreator {
+		cc.logger.Zap.Error("Error [CreatePosts] [Creator Check]: ", "Unauthorized")
+		responses.ErrorJSON(c, http.StatusForbidden, "Sorry, this user is not authorized to creat post")
+		return
+	}
 
 	posts := models.Post{}
 	if err := c.ShouldBindJSON(&posts); err != nil {
@@ -53,6 +74,7 @@ func (cc PostsController) CreatePosts(c *gin.Context) {
 		return
 	}
 
+	posts.UserId = userId
 	if err := cc.PostsService.WithTrx(trx).CreatePosts(posts); err != nil {
 		cc.logger.Zap.Error("Error [CreatePosts] [db CreatePosts]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to create Post")
@@ -67,11 +89,8 @@ func (cc PostsController) CreatePosts(c *gin.Context) {
 func (cc PostsController) UpdatePosts(c *gin.Context) {
 	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
-
+	userId := c.Query(constants.UID)
 	posts := models.Post{}
-	users := models.User{}
-
-	// id, _ := strconv.ParseInt(users.ID, 10, 64)
 
 	if err := c.ShouldBindJSON(&posts); err != nil {
 		cc.logger.Zap.Error("Error [UpdatePosts] (ShouldBindJson) : ", err)
@@ -80,7 +99,7 @@ func (cc PostsController) UpdatePosts(c *gin.Context) {
 		return
 	}
 
-	_, err = cc.PostsService.GetOnePost(int64(id), users.ID)
+	_, err = cc.PostsService.GetOnePost(int64(id), userId)
 
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeleteUser] [Conversion Error]: ", err.Error())
@@ -102,7 +121,6 @@ func (cc PostsController) UpdatePosts(c *gin.Context) {
 func (cc PostsController) PostLikes(c *gin.Context) {
 	userId := c.Query(constants.UID)
 	id, err := strconv.ParseInt(c.Param("postId"), 10, 64)
-
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
@@ -110,8 +128,7 @@ func (cc PostsController) PostLikes(c *gin.Context) {
 		return
 	}
 
-	posts, err := cc.PostsService.GetOnePost(int64(id), userId)
-
+	posts, err := cc.PostsService.GetOnePost(id, userId)
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
@@ -139,13 +156,43 @@ func (cc PostsController) PostLikes(c *gin.Context) {
 	}
 
 	responses.JSON(c, http.StatusOK, userPostLike)
+}
 
+func (cc PostsController) GetComment(c *gin.Context) {
+	pagination := utils.BuildCursorPagination(c)
+	id, err := strconv.ParseInt(c.Param("post_id"), 10, 64)
+
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	posts, err := cc.PostsService.GetPost(id)
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	userPostComment, count, err := cc.CommentService.GetUserPostComment(pagination, posts.ID)
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	responses.JSONCount(c, http.StatusOK, userPostComment, count)
 }
 
 // DeletePosts -> Delete Posts
 func (cc PostsController) DeletePosts(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	users := models.User{}
+
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Post ID")
@@ -243,21 +290,16 @@ func (cc PostsController) GetOnePost(c *gin.Context) {
 	responses.JSON(c, http.StatusOK, posts)
 }
 
-
 func (cc PostsController) GetUsersOfPostLikes(c *gin.Context) {
-
-	// userId := c.MustGet(constants.UID).(int64)
-
-	id, err := strconv.Atoi(c.Param("id"))
-
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
 		responses.HandleError(c, err)
 		return
 	}
-	users, err := cc.LikesService.GetUsersOfPostLikes(int64(id))
 
+	users, err := cc.LikesService.GetUsersOfPostLikes(id)
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
