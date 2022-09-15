@@ -59,3 +59,6 @@ func (c PostsService) CreatorPosts(cursorPagination utils.CursorPagination, user
 func (c PostsService) GetUserFeeds(cursorPagination utils.CursorPagination, userId string) ([]models.Post, error) {
 	return c.repository.GetUserFeed(cursorPagination, userId)
 }
+func (c PostsService) UploadFile(fileName string) {
+	c.repository.UploadFile(fileName)
+}

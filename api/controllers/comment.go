@@ -116,7 +116,6 @@ func (cc CommentController) UpdateComment(c *gin.Context) {
 func (cc CommentController) DeleteComment(c *gin.Context) {
 	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
 	userId := c.Query(constants.UID)
-
 	if err != nil {
 		cc.logger.Zap.Error("Error [DeleteComment] [Conversion Error]: ", err.Error())
 		err := errors.InternalError.Wrap(err, "Failed to Parse Comment ID")

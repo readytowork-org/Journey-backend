@@ -54,5 +54,5 @@ func (c LikesRepository) GetOneLike(postId models.PostLike) (userId models.PostL
 }
 
 func (c LikesRepository) GetUsersOfPostLikes(ID int64) (users []models.User, err error) {
-	return users, c.db.DB.Model(&models.User{}).Select("users.*").Joins("left join post_likes on post_like.user_id = users.id ").Where("post_id = ?", ID).Group("users.id").Find(&users).Error
+	return users, c.db.DB.Model(&models.User{}).Select("users.*").Joins("left join post_likes on post_likes.user_id = users.id ").Where("post_id = ?", ID).Group("users.id").Find(&users).Error
 }

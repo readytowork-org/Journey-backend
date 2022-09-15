@@ -85,3 +85,8 @@ func (c UserRepository) GetAllUsers(pagination utils.Pagination) ([]models.User,
 		Count(&totalRows).Error
 	return users, totalRows, err
 }
+
+func (c UserRepository) SearchUser(queryString string) (users []models.User, err error) {
+
+	return users, c.db.DB.Where("full_name like ?", "%"+queryString+"%").Find(&users).Error
+}
