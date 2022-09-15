@@ -21,6 +21,7 @@ type PostsController struct {
 	PostContentsService services.PostContentsService
 	LikesService        services.LikesService
 	CommentService      services.CommentService
+	UserService         services.UserService
 	env                 infrastructure.Env
 }
 
@@ -31,6 +32,7 @@ func NewPostsController(
 	PostContentsService services.PostContentsService,
 	LikesService services.LikesService,
 	CommentService services.CommentService,
+	UserService services.UserService,
 	env infrastructure.Env,
 ) PostsController {
 	return PostsController{
@@ -39,6 +41,7 @@ func NewPostsController(
 		PostContentsService: PostContentsService,
 		LikesService:        LikesService,
 		CommentService:      CommentService,
+		UserService:         UserService,
 		env:                 env,
 	}
 }
@@ -46,6 +49,22 @@ func NewPostsController(
 // CreatePosts -> Create Post
 func (cc PostsController) CreatePosts(c *gin.Context) {
 	trx := c.MustGet(constants.DBTransaction).(*gorm.DB)
+	//userId := c.MustGet(constants.UID).(string)
+	userId := c.Query(constants.UID)
+
+	user, err := cc.UserService.GetOneUser(userId)
+	if err != nil {
+		cc.logger.Zap.Error("Error [CreatePosts] [db GetOneUser]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to get User")
+		responses.HandleError(c, err)
+		return
+	}
+
+	if !user.IsCreator {
+		cc.logger.Zap.Error("Error [CreatePosts] [Creator Check]: ", "Unauthorized")
+		responses.ErrorJSON(c, http.StatusForbidden, "Sorry, this user is not authorized to creat post")
+		return
+	}
 
 	posts := models.Post{}
 	if err := c.ShouldBindJSON(&posts); err != nil {
