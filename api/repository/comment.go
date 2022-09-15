@@ -53,26 +53,6 @@ func (c CommentRepository) DeleteComment(comment models.Comment) error {
 		Delete(&models.Comment{}).Error
 }
 
-// GetAllComment -> Get All Comments
-func (c CommentRepository) GetAllComments(pagination utils.Pagination) ([]models.Comment, int64, error) {
-	var comments []models.Comment
-	var totalRows int64 = 0
-	queryBuilder := c.db.DB.Limit(pagination.PageSize).Offset(pagination.Offset).Order("created_at desc")
-	queryBuilder = queryBuilder.Model(&models.Comment{})
-
-	if pagination.Keyword != "" {
-		searchQuery := "%" + pagination.Keyword + "%"
-		queryBuilder.Where(c.db.DB.Where("`Comments`.`name` LIKE ?", searchQuery))
-	}
-
-	err := queryBuilder.
-		Find(&comments).
-		Offset(-1).
-		Limit(-1).
-		Count(&totalRows).Error
-	return comments, totalRows, err
-}
-
 func (c CommentRepository) GetUserPostComment(pagination utils.CursorPagination, postId int64) ([]models.Comment, int64, error) {
 	var comment []models.Comment
 	parsedCursor, _ := time.Parse(time.RFC3339, pagination.Cursor)
