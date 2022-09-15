@@ -48,7 +48,7 @@ func (c CommentRepository) UpdateComment(comment models.Comment) error {
 }
 
 // Delete -> Comment
-func (c CommentRepository) DeleteComment(comment models.Comment, ) error {
+func (c CommentRepository) DeleteComment(comment models.Comment) error {
 	return c.db.DB.Where("id = ?", comment.ID).Where("user_id = ?", comment.UserId).
 		Delete(&models.Comment{}).Error
 }
