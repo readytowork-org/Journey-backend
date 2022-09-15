@@ -38,6 +38,27 @@ func NewCommentController(
 	}
 }
 
+func (cc CommentController) GetOneUserComment(c *gin.Context) {
+	userId := c.MustGet(constants.UID).(string)
+
+	commentId, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		cc.logger.Zap.Error("Error [GetOneUserComment] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+	}
+
+	comment, err := cc.commentService.GetOneUserComment(commentId, userId)
+	if err != nil {
+		cc.logger.Zap.Error("Error [GetOneUserComment] [GetOneUserComment]: ", err.Error())
+		err := errors.NotFound.Wrap(err, "Cannot find comment")
+		responses.HandleError(c, err)
+		return
+	}
+
+	responses.JSON(c, http.StatusOK, comment)
+}
+
 // CreateFollow -> Create Follow
 func (cc CommentController) CreateComment(c *gin.Context) {
 	comment := models.Comment{}
