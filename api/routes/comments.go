@@ -25,6 +25,7 @@ func (i CommentRoutes) Setup() {
 		Posts.PUT("/:id", i.trxMiddleware.DBTransactionHandle(), i.CommentController.UpdateComment)
 		Posts.DELETE("/:id", i.CommentController.DeleteComment)
 		Posts.GET("/like/:id", i.CommentController.CreateCommentLike)
+		Posts.GET("/post/:id", i.CommentController.GetUserPostComment)
 	}
 }
 
