@@ -7,6 +7,7 @@ import (
 	"boilerplate-api/errors"
 	"boilerplate-api/infrastructure"
 	"boilerplate-api/models"
+	"boilerplate-api/utils"
 	"net/http"
 	"strconv"
 
@@ -218,4 +219,34 @@ func (cc CommentController) CreateCommentLike(c *gin.Context) {
 		return
 	}
 	responses.SuccessJSON(c, http.StatusOK, userCommentLike)
+}
+
+func (cc CommentController) GetUserPostComment(c *gin.Context) {
+
+	id, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	pagination := utils.BuildCursorPagination(c)
+	if err != nil {
+		cc.logger.Zap.Error("Error [UpdateComment] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse user ID")
+		responses.HandleError(c, err)
+		return
+	}
+	post, err := cc.postService.GetPost(id)
+	if err != nil {
+		cc.logger.Zap.Error("Error [DeletePosts] [Conversion Error]: ", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to Parse Posts ID")
+		responses.HandleError(c, err)
+		return
+	}
+
+	comments, count, err := cc.commentService.GetUserPostComment(pagination, post.ID)
+
+	if err != nil {
+		cc.logger.Zap.Error("Error finding comments for this post", err.Error())
+		err := errors.InternalError.Wrap(err, "Failed to get comments for post")
+		responses.HandleError(c, err)
+		return
+	}
+
+	responses.JSONCount(c, http.StatusOK, comments, count)
 }

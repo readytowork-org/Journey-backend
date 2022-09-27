@@ -59,8 +59,7 @@ func (cc UserController) CreateUser(c *gin.Context) {
 // UpdateUser -> Update User
 func (cc UserController) UpdateUser(c *gin.Context) {
 	user := models.User{}
-	id := c.Param("id")
-
+	id := c.MustGet(constants.UID).(string)
 	if err := c.ShouldBindJSON(&user); err != nil {
 		cc.logger.Zap.Error("Error [UpdateUser] (ShouldBindJson) : ", err)
 		err := errors.BadRequest.Wrap(err, "Failed to bind user data")

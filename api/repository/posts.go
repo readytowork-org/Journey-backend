@@ -113,15 +113,18 @@ func (c PostsRepository) CreatorPosts(cursorPagination utils.CursorPagination, u
 
 //GetUserFeed => Get Users Feeds
 
-func (c PostsRepository) GetUserFeed(cursorPagination utils.CursorPagination, userId string) (Posts []models.Post, err error) {
+func (c PostsRepository) GetUserFeed(cursorPagination utils.CursorPagination, userId string) (Posts []models.FeedPost, err error) {
 	parsedCursor, _ := time.Parse(time.RFC3339, cursorPagination.Cursor)
-	queryBuilder := c.db.DB.Model(&models.Post{}).Select(`posts.*`).Joins(`join followers on followers.follow_user_id=posts.user_id`).Where(`posts.audience != 'private' and followers.user_id= ?`, userId).
+	queryBuilder := c.db.DB.Model(&models.FeedPost{}).Select(`posts.*,(SELECT COUNT(post_id) FROM post_likes WHERE posts.id = post_likes.post_id) like_count,
+	(SELECT COUNT(comment_id) FROM comment_likes JOIN comments p ON p.id = comment_likes.comment_id) comment_like_count,
+	IF((SELECT c.user_id FROM post_likes c WHERE user_id = ?) = ?, TRUE, FALSE) has_liked`, userId, userId).Joins(`join followers on followers.follow_user_id=posts.user_id`).
+		Where(`posts.audience != 'private' and followers.user_id= ?`, userId).
 		Limit(cursorPagination.PageSize)
 	if cursorPagination.Cursor != "" {
 		queryBuilder = queryBuilder.Where("created_at < ?", parsedCursor)
 	}
 
-	return Posts, queryBuilder.Order("created_at desc").Find(&Posts).
+	return Posts, queryBuilder.Order("created_at desc").Preload("PostContents").Preload("User").Find(&Posts).
 		Error
 }
 

@@ -56,7 +56,7 @@ func (c PostsService) CreatorPosts(cursorPagination utils.CursorPagination, user
 }
 
 // Get User Feeds -> call to get user feeds
-func (c PostsService) GetUserFeeds(cursorPagination utils.CursorPagination, userId string) ([]models.Post, error) {
+func (c PostsService) GetUserFeeds(cursorPagination utils.CursorPagination, userId string) ([]models.FeedPost, error) {
 	return c.repository.GetUserFeed(cursorPagination, userId)
 }
 func (c PostsService) UploadFile(fileName string) {
